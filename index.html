@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Huỳnh Thái Hoà | Aspiring AI Engineer · HCMUS Portfolio</title>
+  <meta name="description" content="Portfolio chuyên môn của Huỳnh Thái Hoà - Sinh viên Công nghệ Tri thức, ĐH Khoa học Tự nhiên (HCMUS). Tập trung showcase đồ án AI, Thuật toán và Kỹ thuật phần mềm.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Google Fonts: JetBrains Mono & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- File CSS riêng -->
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-[#07090E] text-[#E2E8F0] font-sans antialiased selection:bg-slate-700 selection:text-white transition-colors duration-300 min-h-screen flex flex-col justify-between">
+
+  <!-- BACKGROUND DECORATIONS -->
+  <div class="fixed inset-0 tech-grid pointer-events-none z-0"></div>
+  <div class="fixed top-0 left-1/4 w-[500px] h-[500px] bg-slate-800/20 rounded-full blur-[140px] pointer-events-none z-0"></div>
+  <div class="fixed top-1/2 right-10 w-[450px] h-[450px] bg-blue-950/15 rounded-full blur-[150px] pointer-events-none z-0"></div>
+
+  <!-- NAVIGATION BAR (Menu tinh giản 3 mục chính: Tổng quan & Hồ sơ, Đồ án, Liên hệ) -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-[#1E2430] bg-[#07090E]/90 backdrop-blur-md" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Logo / Brand -->
+      <a href="#hero" class="nav-page-btn flex items-center space-x-2 font-mono font-bold text-base text-white group" data-target="hero">
+        <span class="text-slate-400 group-hover:text-sky-400 transition">&lt;</span>
+        <span class="tracking-wider text-slate-100 group-hover:text-white transition-colors">ThaiHoa.dev</span>
+        <span class="text-slate-500 group-hover:text-emerald-400 transition">/&gt;</span>
+      </a>
+
+      <!-- Desktop Nav Menu: Đã gộp gọn, loại bỏ các số 00, 01, 02... -->
+      <nav class="hidden md:flex items-center space-x-2 text-xs font-mono font-medium">
+        <button data-target="hero" class="nav-page-btn px-3.5 py-1.5 rounded-lg border border-transparent transition-all">
+          Tổng quan & Hồ sơ
+        </button>
+        <button data-target="projects" class="nav-page-btn px-3.5 py-1.5 rounded-lg border border-transparent transition-all">
+          Dự án & Đồ án HCMUS
+        </button>
+        <button data-target="contact" class="nav-page-btn px-3.5 py-1.5 rounded-lg border border-transparent transition-all">
+          Liên hệ
+        </button>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-3">
+        <!-- Badge đổi chế độ (HR View vs Creator Mode) -->
+        <button id="modeBadge" title="Nhấn để đổi chế độ (Mã PIN: 1234)" class="px-2.5 py-1 rounded text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700 cursor-pointer flex items-center gap-1.5 transition">
+          HR View
+        </button>
+
+        <!-- Terminal CLI button -->
+        <button id="terminalToggleBtn" title="Mở Terminal tương tác" class="px-3 py-1.5 rounded-lg border border-[#232936] bg-[#0F1219] hover:bg-[#181D26] hover:border-[#3A4458] text-slate-300 hover:text-white transition-all flex items-center gap-2 text-xs font-mono">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span class="hidden sm:inline">CLI</span>
+        </button>
+
+        <!-- Nút Liên hệ nhanh -->
+        <button data-target="contact" class="nav-page-btn px-4 py-2 text-xs font-mono font-semibold rounded-lg bg-[#1E2430] hover:bg-[#2A3344] border border-[#2B3545] text-slate-100 hover:text-white transition-all flex items-center space-x-1.5 shadow-sm">
+          <i data-lucide="send" class="w-3.5 h-3.5 text-sky-400"></i>
+          <span>Kết nối</span>
+        </button>
+
+        <!-- Mobile menu toggle -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg border border-[#232936] bg-[#0F1219] text-slate-400 hover:text-white">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Dropdown -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-[#1E2430] bg-[#07090E]/98 px-4 pt-3 pb-6 space-y-2 font-mono text-xs">
+      <button data-target="hero" class="nav-page-btn w-full text-left py-2.5 px-3 rounded-lg block">Tổng quan & Hồ sơ</button>
+      <button data-target="projects" class="nav-page-btn w-full text-left py-2.5 px-3 rounded-lg block">Dự án & Đồ án HCMUS</button>
+      <button data-target="contact" class="nav-page-btn w-full text-left py-2.5 px-3 rounded-lg block">Liên hệ</button>
+    </div>
+  </header>
+
+  <!-- CONTAINER CHỨA CÁC TRANG CHÍNH -->
+  <main class="relative z-10 pt-24 pb-16 flex-1">
+
+    <!-- ==================== TRANG 1: TỔNG QUAN, HỌC VẤN & KỸ NĂNG CỐT LÕI ==================== -->
+    <section id="hero" class="page-section active max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+      
+      <!-- HERO BANNER -->
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
+        <div class="flex-1 space-y-5 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#232936] bg-[#0F1219] text-slate-300 text-xs font-mono">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Sinh viên năm 3 · ĐH Khoa học Tự nhiên TP.HCM (HCMUS)</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+            Huỳnh Thái Hoà
+          </h1>
+
+          <p class="text-lg sm:text-xl text-slate-300 font-mono flex items-center justify-center lg:justify-start">
+            <span class="text-sky-400 mr-2">&gt;</span>
+            <span id="typingEffect">Aspiring AI Engineer</span>
+            <span class="cursor-blink"></span>
+          </p>
+
+          <p class="text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
+            Sinh viên chuyên ngành <strong class="text-slate-200">Công nghệ Tri thức</strong> tại HCMUS. Nền tảng vững chắc về thuật toán tối ưu hóa, cấu trúc dữ liệu, toán ứng dụng và lập trình C/C++, Python. Định hướng thực tập và phát triển chuyên sâu vị trí <strong class="text-sky-300">AI Engineer / Software Engineer</strong>.
+          </p>
+
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+            <button data-target="projects" class="page-jump-btn px-6 py-3 rounded-lg bg-[#181D26] hover:bg-[#222936] text-white border border-[#2B3545] text-xs font-mono font-medium flex items-center gap-2 shadow-lg shadow-black/40 transition">
+              <i data-lucide="folder-git-2" class="w-4 h-4 text-sky-400"></i>
+              Khám phá đồ án & dự án thực tế →
+            </button>
+            <button data-target="contact" class="page-jump-btn px-6 py-3 rounded-lg border border-[#232936] bg-[#0F1219] hover:bg-[#151922] text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-2 transition">
+              <i data-lucide="mail" class="w-4 h-4 text-slate-400"></i>
+              Thông tin liên hệ
+            </button>
+          </div>
+
+          <!-- Quick Contacts matching CV -->
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-5 pt-2 text-slate-400 text-xs font-mono">
+            <div class="flex items-center gap-1.5 text-slate-300">
+              <i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i>
+              <span>TP. Hồ Chí Minh, Việt Nam</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-slate-300">
+              <i data-lucide="mail" class="w-4 h-4 text-slate-400"></i>
+              <span>hoa.08.a1.nhc@gmail.com</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-slate-300">
+              <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
+              <span>+84 931 149 015</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terminal Editor Profile Showcase -->
+        <div class="flex-1 w-full max-w-lg">
+          <div class="dark-card rounded-2xl overflow-hidden shadow-2xl border border-[#232936]">
+            <div class="bg-[#0B0E14] px-4 py-3 border-b border-[#1E2430] flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-slate-700"></span>
+                <span class="w-3 h-3 rounded-full bg-slate-600"></span>
+                <span class="w-3 h-3 rounded-full bg-slate-500"></span>
+              </div>
+              <div class="text-xs font-mono text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="terminal" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span>candidate_profile.py</span>
+              </div>
+              <div class="text-[10px] text-slate-500 font-mono">Python 3.11</div>
+            </div>
+
+            <div class="p-5 font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto text-slate-300 bg-[#0A0D13]">
+              <p><span class="text-purple-400">class</span> <span class="text-sky-300">CandidateProfile</span>:</p>
+              <p class="pl-4"><span class="text-slate-400">name</span> = <span class="text-amber-200">"Huỳnh Thái Hoà"</span></p>
+              <p class="pl-4"><span class="text-slate-400">university</span> = <span class="text-amber-200">"VNUHCM - University of Science (HCMUS)"</span></p>
+              <p class="pl-4"><span class="text-slate-400">major</span> = <span class="text-amber-200">"Knowledge Technology (Công nghệ tri thức)"</span></p>
+              <p class="pl-4"><span class="text-slate-400">target_role</span> = <span class="text-emerald-400">"AI Engineer / Software Engineer (Intern / Fresher)"</span></p>
+              <p class="pl-4"><span class="text-slate-400">key_strengths</span> = [</p>
+              <p class="pl-8 text-slate-300">"Đam mê kỹ thuật sâu",</p>
+              <p class="pl-8 text-slate-300">"Tư duy giải quyết vấn đề bằng toán & giải thuật",</p>
+              <p class="pl-8 text-slate-300">"Làm việc nhóm, quản lý Git thực tế"</p>
+              <p class="pl-4">]</p>
+              <br>
+              <p class="pl-4"><span class="text-purple-400">def</span> <span class="text-sky-300">work_mindset</span>(<span class="text-slate-400">self</span>):</p>
+              <p class="pl-8 text-slate-200"><span class="text-purple-400">return</span> <span class="text-amber-200">"Sẵn sàng học hỏi, tạo giá trị kỹ thuật thực tế cho dự án"</span></p>
+            </div>
+
+            <div class="bg-[#0B0E14] px-4 py-2 border-t border-[#1E2430] flex items-center justify-between text-xs text-slate-500 font-mono">
+              <span class="flex items-center gap-1.5 text-slate-400">
+                <i data-lucide="git-branch" class="w-3.5 h-3.5 text-slate-400"></i> main (Git Work-Ready Certified)
+              </span>
+              <span class="text-slate-400">UTF-8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GỘP GỌN: HỌC VẤN, CHỨNG CHỈ & NĂNG LỰC KỸ THUẬT (ĐỒNG BỘ THEO CV) -->
+      <div class="pt-8 border-t border-[#1E2430]">
+        <div class="mb-8">
+          <h2 class="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase mb-1">// Nền tảng chuyên môn</h2>
+          <h3 class="text-2xl font-bold text-white">Học Vấn, Chứng Chỉ & Kỹ Năng Kỹ Thuật</h3>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Cột Trái: Học Vấn & Chứng chỉ -->
+          <div class="space-y-6">
+            <!-- Học vấn -->
+            <div class="dark-card p-6 rounded-2xl border border-[#232936] space-y-3">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-[#181D26] border border-[#242C3A] text-slate-300">
+                  <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-white text-base">Đại học Khoa học Tự nhiên - ĐHQG TP.HCM</h4>
+                  <span class="text-xs text-slate-400 font-mono">2024 - Hiện tại · Sinh viên năm 3</span>
+                </div>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed pl-1">
+                Ngành <strong>Công nghệ tri thức (Knowledge Technology)</strong> - Khoa Công nghệ thông tin. Được trang bị nền tảng chuyên sâu về Toán thống kê, Cấu trúc dữ liệu & Giải thuật, Trí tuệ nhân tạo, Hệ thống và Cơ sở dữ liệu.
+              </p>
+            </div>
+
+            <!-- Chứng chỉ -->
+            <div class="dark-card p-6 rounded-2xl border border-[#232936] space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-[#181D26] border border-[#242C3A] text-slate-300">
+                  <i data-lucide="award" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-white text-base">Chứng chỉ & Khóa học</h4>
+                  <span class="text-xs text-slate-400 font-mono">Certificates & Training</span>
+                </div>
+              </div>
+
+              <div class="space-y-3 text-xs text-slate-300">
+                <div class="p-3 rounded-xl bg-[#0A0D13] border border-[#1E2430]">
+                  <div class="font-bold text-white flex items-center justify-between">
+                    <span>Git Work-Ready Certificate</span>
+                    <span class="text-[10px] text-emerald-400 font-mono">Verified · 30.03.2026</span>
+                  </div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Cấp bởi: CÔNG TY CỔ PHẦN RIKKEI EDUCATION</div>
+                  <p class="text-slate-400 text-xs mt-1.5 leading-relaxed">
+                    Quy trình quản lý mã nguồn chuyên nghiệp trong dự án thực tế: Git flow, phân nhánh branching, giải quyết xung đột merge conflict và phối hợp mã nguồn nhóm.
+                  </p>
+                </div>
+
+                <div class="p-3 rounded-xl bg-[#0A0D13] border border-[#1E2430]">
+                  <div class="font-bold text-white flex items-center justify-between">
+                    <span>4-Skill TOEIC Preparation Course</span>
+                    <span class="text-[10px] text-sky-400 font-mono">In Progress</span>
+                  </div>
+                  <div class="text-slate-400 text-xs mt-1">Đang hoàn thiện kỹ năng đọc hiểu tài liệu kỹ thuật tiếng Anh và giao tiếp chuyên ngành IT.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột Phải: Technical Skills (Chuẩn hóa chuẩn CV) -->
+          <div class="dark-card p-6 rounded-2xl border border-[#232936] flex flex-col justify-between space-y-5">
+            <div>
+              <div class="flex items-center gap-3 mb-5">
+                <div class="p-2.5 rounded-lg bg-[#181D26] border border-[#242C3A] text-slate-300">
+                  <i data-lucide="cpu" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-white text-base">Kỹ Năng Kỹ Thuật (Technical Skills)</h4>
+                  <span class="text-xs text-slate-400 font-mono">Nền tảng công nghệ sẵn sàng ứng dụng</span>
+                </div>
+              </div>
+
+              <div class="space-y-4 text-xs">
+                <!-- Nhóm 1: Ngôn ngữ -->
+                <div>
+                  <div class="font-mono text-slate-400 mb-1.5 flex items-center gap-1.5">
+                    <i data-lucide="code" class="w-3.5 h-3.5 text-sky-400"></i>
+                    <span class="font-semibold text-slate-300">Programming Languages:</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">C / C++ (Core, OOP, DSA)</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Python (NumPy, Scripting)</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">SQL (MS SQL Server)</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Dart</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">HTML / CSS / JS (Basic)</span>
+                  </div>
+                </div>
+
+                <!-- Nhóm 2: Thuật toán & Kỹ thuật -->
+                <div>
+                  <div class="font-mono text-slate-400 mb-1.5 flex items-center gap-1.5">
+                    <i data-lucide="binary" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span class="font-semibold text-slate-300">Technologies & Algorithms:</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Genetic Algorithm</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Dijkstra's & A* Algorithm</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Matrix Image Processing</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Database Schema Design</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Socket Programming</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Frontend Prompting</span>
+                  </div>
+                </div>
+
+                <!-- Nhóm 3: Công cụ & Nền tảng -->
+                <div>
+                  <div class="font-mono text-slate-400 mb-1.5 flex items-center gap-1.5">
+                    <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span class="font-semibold text-slate-300">Tools & Platforms:</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Git / GitHub</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">VS Code</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">MS SQL Server</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Docker (Basic setup)</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Google Cloud Platform (GCP)</span>
+                    <span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 border border-[#242C3A]">Arduino & Fusion 360</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nút điều hướng sang trang Dự án -->
+            <div class="pt-4 border-t border-[#1E2430] flex items-center justify-between">
+              <span class="text-[11px] font-mono text-slate-400">Xem minh chứng qua sản phẩm thực tế:</span>
+              <button data-target="projects" class="page-jump-btn text-xs font-mono font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition">
+                <span>Trang Dự án</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TRANG 2: DỰ ÁN & ĐỒ ÁN HCMUS (LINH HỒN CỦA PORTFOLIO) ==================== -->
+    <section id="projects" class="page-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      
+      <!-- Thanh công cụ Creator / Admin (chỉ hiện khi ở Admin Mode) -->
+      <div id="adminControlsBar" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-xs font-mono text-amber-300">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i>
+          <span><strong>CREATOR DASHBOARD:</strong> Chế độ quản trị dự án (Lưu cục bộ tại trình duyệt).</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openAddProjectModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+            <span>Thêm Dự Án Mới</span>
+          </button>
+          <button onclick="exportProjectsJSON()" class="px-3 py-1.5 rounded-lg bg-[#181D26] hover:bg-[#222936] text-slate-200 border border-[#2B3545] font-mono text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>Xuất JSON</span>
+          </button>
+          <button onclick="importProjectsJSON()" class="px-3 py-1.5 rounded-lg bg-[#181D26] hover:bg-[#222936] text-slate-200 border border-[#2B3545] font-mono text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>Nhập JSON</span>
+          </button>
+          <button onclick="resetDefaultProjects()" class="px-3 py-1.5 rounded-lg bg-[#181D26] hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 border border-[#2B3545] font-mono text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Khôi phục gốc</span>
+          </button>
+          <button onclick="changeAdminPIN()" class="px-3 py-1.5 rounded-lg bg-[#181D26] hover:bg-[#222936] text-amber-300 hover:text-amber-200 border border-amber-500/30 font-mono text-xs flex items-center gap-1.5 transition" title="Đổi mã PIN bảo mật cho Creator Mode">
+            <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Đổi mã PIN</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Header trang dự án (Bỏ tiền tố số 03) -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 class="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase mb-1">// Sản phẩm & Bằng chứng kỹ thuật</h2>
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-white">Đồ Án & Dự Án Đã Thực Hiện Tại HCMUS</h3>
+          <p class="mt-1.5 text-xs sm:text-sm text-slate-400">Các bài toán thực tế giải quyết trong suốt quá trình học tập được minh chứng bằng giải thuật, vai trò và mã nguồn.</p>
+        </div>
+        
+        <!-- Bộ lọc dự án tinh gọn -->
+        <div class="flex flex-wrap items-center gap-1.5 bg-[#0A0D13] p-1.5 rounded-xl border border-[#232936] text-xs font-mono">
+          <button data-filter="all" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#1E2430] text-white border border-[#2B3545] transition">
+            Tất cả
+          </button>
+          <button data-filter="ai" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition">
+            AI & Toán ứng dụng
+          </button>
+          <button data-filter="software" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition">
+            App & Phần mềm
+          </button>
+          <button data-filter="system" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition">
+            Mạng & Phần cứng
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid danh sách dự án động (Render bởi script.js) -->
+      <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Render động từ script.js -->
+      </div>
+    </section>
+
+    <!-- ==================== TRANG 3: LIÊN HỆ & KẾT NỐI ==================== -->
+    <section id="contact" class="page-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h2 class="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase mb-1">// Thông tin kết nối</h2>
+        <h3 class="text-2xl sm:text-3xl font-extrabold text-white">Liên Hệ Trực Tiếp Với Huỳnh Thái Hoà</h3>
+        <p class="mt-2 text-xs sm:text-sm text-slate-400">Tôi luôn sẵn sàng đón nhận cơ hội thực tập, vị trí Fresher hoặc thảo luận về các dự án AI & Kỹ thuật phần mềm.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <!-- Thông tin liên lạc khớp chính xác với CV -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="dark-card p-6 rounded-2xl border border-[#232936] space-y-5 text-xs font-mono">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider">Thông Tin Liên Lạc Trực Tiếp</h4>
+            
+            <div class="flex items-start gap-3.5">
+              <div class="p-2.5 rounded-lg bg-[#181D26] text-slate-300 border border-[#242C3A] shrink-0">
+                <i data-lucide="mail" class="w-4 h-4 text-sky-400"></i>
+              </div>
+              <div>
+                <div class="text-slate-400">Email cá nhân:</div>
+                <a href="mailto:hoa.08.a1.nhc@gmail.com" class="text-white hover:text-sky-300 font-semibold transition text-sm">hoa.08.a1.nhc@gmail.com</a>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+              <div class="p-2.5 rounded-lg bg-[#181D26] text-slate-300 border border-[#242C3A] shrink-0">
+                <i data-lucide="phone" class="w-4 h-4 text-emerald-400"></i>
+              </div>
+              <div>
+                <div class="text-slate-400">Số điện thoại / Zalo:</div>
+                <a href="tel:0931149015" class="text-white hover:text-emerald-300 font-semibold transition text-sm">+84 931 149 015</a>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+              <div class="p-2.5 rounded-lg bg-[#181D26] text-slate-300 border border-[#242C3A] shrink-0">
+                <i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i>
+              </div>
+              <div>
+                <div class="text-slate-400">Địa chỉ (Trùng CV):</div>
+                <div class="text-white font-medium text-xs leading-relaxed mt-0.5">184 Lê Đình Cẩn, Tân Tạo, TP. Hồ Chí Minh 700000, Việt Nam</div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-[#232936] text-[11px] text-slate-400 leading-relaxed">
+              Trường Đại học Khoa học Tự nhiên - ĐHQG TP.HCM (HCMUS)<br>
+              Khoa Công nghệ Thông tin · Ngành Công nghệ Tri thức
+            </div>
+          </div>
+        </div>
+
+        <!-- Form gửi tin nhắn nhanh -->
+        <div class="lg:col-span-3">
+          <form id="contactForm" class="dark-card p-6 sm:p-8 rounded-2xl border border-[#232936] space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="name" class="block text-xs font-mono text-slate-400 mb-1.5">Họ và Tên *</label>
+                <input type="text" id="name" required placeholder="Nhà tuyển dụng / Doanh nghiệp" class="w-full px-3.5 py-2.5 rounded-lg bg-[#0A0D13] border border-[#232936] focus:border-slate-400 focus:ring-1 focus:ring-slate-400 text-xs sm:text-sm text-white placeholder-slate-600 outline-none transition">
+              </div>
+              <div>
+                <label for="email" class="block text-xs font-mono text-slate-400 mb-1.5">Địa Chỉ Email *</label>
+                <input type="email" id="email" required placeholder="hr@company.com" class="w-full px-3.5 py-2.5 rounded-lg bg-[#0A0D13] border border-[#232936] focus:border-slate-400 focus:ring-1 focus:ring-slate-400 text-xs sm:text-sm text-white placeholder-slate-600 outline-none transition">
+              </div>
+            </div>
+
+            <div>
+              <label for="subject" class="block text-xs font-mono text-slate-400 mb-1.5">Tiêu Đề</label>
+              <input type="text" id="subject" placeholder="Cơ hội thực tập AI / Trao đổi dự án phần mềm" class="w-full px-3.5 py-2.5 rounded-lg bg-[#0A0D13] border border-[#232936] focus:border-slate-400 focus:ring-1 focus:ring-slate-400 text-xs sm:text-sm text-white placeholder-slate-600 outline-none transition">
+            </div>
+
+            <div>
+              <label for="message" class="block text-xs font-mono text-slate-400 mb-1.5">Nội Dung Lời Nhắn *</label>
+              <textarea id="message" rows="4" required placeholder="Chào Hoà, mình đã xem qua CV và Portfolio của bạn..." class="w-full px-3.5 py-2.5 rounded-lg bg-[#0A0D13] border border-[#232936] focus:border-slate-400 focus:ring-1 focus:ring-slate-400 text-xs sm:text-sm text-white placeholder-slate-600 outline-none transition"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-3 px-6 rounded-lg bg-[#181D26] hover:bg-[#222936] text-white border border-[#2B3545] text-xs font-mono font-medium flex items-center justify-center gap-2 shadow-lg shadow-black/40 transition">
+              <i data-lucide="send" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>Gửi Tin Nhắn Cho Hoà</span>
+            </button>
+            <div id="formFeedback" class="hidden text-center text-xs font-mono text-emerald-400 pt-2">
+              ✓ Lời nhắn của bạn đã được ghi nhận! Hoà sẽ phản hồi lại sớm nhất.
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-[#1E2430] bg-[#05070B] py-6 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400">
+      <div class="flex items-center gap-2">
+        <span class="text-slate-300">&copy; 2026 Huỳnh Thái Hoà.</span>
+        <span>Sinh viên Công nghệ Tri thức · HCMUS.</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <button id="adminPanelBtn" class="text-slate-500 hover:text-amber-400 transition" title="Mở quyền Admin (Phím tắt: Ctrl + Shift + A)">Admin Mode</button>
+        <button data-target="hero" class="page-jump-btn hover:text-white transition">Về đầu trang ↑</button>
+        <a href="mailto:hoa.08.a1.nhc@gmail.com" class="hover:text-white transition">hoa.08.a1.nhc@gmail.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL: THÊM / SỬA DỰ ÁN (CHỈ DÙNG CHO CHỦ PORTFOLIO TRONG ADMIN MODE) -->
+  <div id="projectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden">
+    <div class="w-full max-w-xl dark-card rounded-2xl overflow-hidden border border-[#2B3545] shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="bg-[#0B0E14] px-6 py-4 border-b border-[#1E2430] flex items-center justify-between">
+        <h3 id="modalTitle" class="text-base font-bold text-white font-mono flex items-center gap-2">
+          <i data-lucide="edit-3" class="w-4 h-4 text-sky-400"></i>
+          <span>Thêm Dự Án Mới</span>
+        </h3>
+        <button id="closeProjectModalBtn" class="text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="projectForm" class="p-6 overflow-y-auto space-y-4 text-xs font-mono">
+        <input type="hidden" id="projectId" value="">
+
+        <div>
+          <label class="block text-slate-400 mb-1">Tên Dự Án *</label>
+          <input type="text" id="projTitle" required placeholder="Ví dụ: Định tuyến đường đi xe cấp cứu bằng giải thuật tối ưu..." class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Phân Loại *</label>
+            <select id="projCategory" class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none">
+              <option value="ai">AI & Toán ứng dụng</option>
+              <option value="software">App & Phần Mềm</option>
+              <option value="system">Mạng & Phần cứng</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Môn Học / Nguồn</label>
+            <input type="text" id="projBadge" placeholder="Cơ sở AI / Cá nhân" class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Thẻ Badge Nhỏ</label>
+            <input type="text" id="projTag" placeholder="Python / C++" class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1">Mô Tả Ngắn (Bài toán giải quyết) *</label>
+          <textarea id="projShortDesc" rows="2" required placeholder="Dự án giải quyết vấn đề gì, áp dụng mô hình/thuật toán nào..." class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1">Vai Trò Của Bạn Trong Dự Án *</label>
+          <textarea id="projRole" rows="2" required placeholder="Ví dụ: Phụ trách thiết kế giải thuật Genetic / Dijkstra, phân tích ma trận chi phí..." class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1">Tech Stack (Cách nhau bằng dấu phẩy)</label>
+          <input type="text" id="projTechStack" placeholder="Python, Dijkstra, Genetic Algorithm, NumPy" class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Link GitHub Repo</label>
+            <input type="url" id="projGithub" placeholder="https://github.com/..." class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Link Demo / Video</label>
+            <input type="url" id="projDemo" placeholder="https://..." class="w-full px-3 py-2 rounded-lg bg-[#0A0D13] border border-[#232936] text-white focus:border-sky-400 outline-none">
+          </div>
+        </div>
+
+        <!-- Tùy chọn Pin (Ghim lên đầu trang) -->
+        <div class="p-3 rounded-lg bg-[#181D26] border border-[#2B3545] flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="pin" class="w-4 h-4 text-amber-400"></i>
+            <div>
+              <div class="text-white font-bold text-xs">Ghim lên đầu trang (Featured Project)</div>
+              <div class="text-slate-400 text-[10px]">Đánh dấu dự án nổi bật nhất (Tối đa 3 dự án)</div>
+            </div>
+          </div>
+          <input type="checkbox" id="projIsPinned" class="w-4 h-4 rounded accent-amber-500 cursor-pointer">
+        </div>
+
+        <div class="pt-3 border-t border-[#1E2430] flex items-center justify-end gap-3">
+          <button type="button" onclick="closeProjectModal()" class="px-4 py-2 rounded-lg border border-[#232936] text-slate-400 hover:text-white transition">Hủy</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Lưu Dự Án</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: INTERACTIVE DEVELOPER TERMINAL -->
+  <div id="terminalModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden">
+    <div class="w-full max-w-2xl dark-card rounded-2xl overflow-hidden border border-[#2B3545] shadow-2xl flex flex-col">
+      <div class="bg-[#0B0E14] px-4 py-3 border-b border-[#1E2430] flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <button id="closeTerminalBtn" class="w-3.5 h-3.5 rounded-full bg-slate-700 hover:bg-rose-500 transition cursor-pointer" title="Đóng"></button>
+          <span class="w-3.5 h-3.5 rounded-full bg-slate-600"></span>
+          <span class="w-3.5 h-3.5 rounded-full bg-slate-500"></span>
+        </div>
+        <div class="text-xs font-mono text-slate-400 flex items-center gap-1.5">
+          <i data-lucide="terminal" class="w-4 h-4 text-sky-400"></i>
+          <span>thaihoa@hcmus: ~ (bash)</span>
+        </div>
+        <div class="text-xs text-slate-500 font-mono">v3.0</div>
+      </div>
+
+      <div id="terminalBody" class="p-4 bg-[#07090E] font-mono text-xs sm:text-sm h-72 overflow-y-auto space-y-2 text-slate-300">
+        <div class="text-slate-400">Chào mừng đến với Interactive Dev Shell của <span class="text-white font-bold">Huỳnh Thái Hoà</span>! Gõ <span class="text-sky-300 font-bold">help</span> để xem các lệnh có sẵn.</div>
+        <div class="text-slate-500">Thử các lệnh: <span class="text-slate-300">whoami</span>, <span class="text-slate-300">skills</span>, <span class="text-slate-300">projects</span>, <span class="text-slate-300">cert</span>, <span class="text-sky-400">admin</span>, <span class="text-slate-300">clear</span></div>
+      </div>
+
+      <div class="bg-[#0B0E14] px-4 py-2 border-t border-[#1E2430] flex items-center gap-2 font-mono text-sm">
+        <span class="text-sky-400">thaihoa@hcmus:~$</span>
+        <input type="text" id="terminalInput" class="flex-1 bg-transparent border-none outline-none text-white font-mono text-xs sm:text-sm" placeholder="Nhập lệnh và nhấn Enter..." autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <!-- File JavaScript riêng -->
+  <script src="script.js"></script>
+</body>
+</html>
