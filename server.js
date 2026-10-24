@@ -36,94 +36,78 @@ if (databaseUrl && databaseUrl.trim() !== "") {
   console.warn("👉 Vui lòng mở file .env và điền connection string từ Supabase để đồng bộ dữ liệu đám mây.\n");
 }
 
-// Danh sách dự án khởi tạo mặc định của Huỳnh Thái Hoà tại HCMUS
+// Danh sách dự án khởi tạo mặc định chuẩn hóa 100% khớp với CV của Huỳnh Thái Hoà
 const DEFAULT_PROJECTS = [
   {
     id: "proj-1",
-    title: "Tìm Đường Đi Tối Ưu Cho Xe Cấp Cứu",
+    title: "AI Arena Vietnam 2026 - \"Audition: Viet Phuc Remix\"",
     category: "ai",
-    badge: "Cơ sở Trí tuệ Nhân tạo",
-    tag: "Đồ án AI",
-    icon: "navigation",
-    isPinned: true, // Ghim 1
-    shortDesc: "Xây dựng giải thuật định tuyến tìm lộ trình di chuyển nhanh nhất cho xe cứu thương trong đô thị với nhiều ràng buộc kẹt xe.",
-    problem: "Trong các đô thị lớn, xe cấp cứu thường xuyên bị chậm trễ do ùn tắc giao thông, đèn đỏ và sự cố đột xuất. Các thuật toán định tuyến thông thường chỉ tìm đường ngắn nhất về khoảng cách địa lý (Geometric Distance) mà không phản ánh đúng thời gian thực.",
-    role: "Phân tích đồ thị mạng lưới đường sá, thiết kế ma trận trọng số chi phí di chuyển (Cost matrix) kết hợp độ dài quãng đường và mật độ phương tiện. Tối ưu hàm Heuristic định hướng đường đi để giảm số lượng đỉnh cần duyệt.",
-    techDetails: "Ứng dụng thuật toán Dijkstra và A* Search trên đồ thị có trọng số biến thiên. Mô hình hóa bài toán bằng Python, tối ưu tốc độ tính toán ma trận với NumPy. Đạt kết quả tối ưu thời gian tìm đường nhanh hơn 30% so với duyệt thông thường.",
-    techStack: ["A* Algorithm", "Dijkstra", "Weight Matrix", "Python", "NumPy"],
-    githubUrl: "https://github.com",
+    badge: "AI Arena 2026 · Điểm: 86.75",
+    tag: "AI & Supabase",
+    icon: "sparkles",
+    isPinned: true, // Ghim 1 (Top 1 CV)
+    shortDesc: "Ứng dụng AI hướng tới Gen-Z giúp khám phá và cách điệu trang phục cổ phong Việt Nam theo bối cảnh sự kiện và phong cách cá nhân.",
+    problem: "Người trẻ yêu thích trang phục truyền thống Việt Nam nhưng gặp rào cản trong việc tra cứu ngữ cảnh văn hóa, cách phối đồ phù hợp với từng dịp lễ hội hoặc phong cách hiện đại. Cần một giải pháp AI trực quan, tương tác nhanh và đảm bảo tính chính xác về văn hóa.",
+    role: "AI Backend Developer & Database Engineer: Thiết kế kiến trúc Cơ sở dữ liệu cốt lõi trên Supabase (PostgreSQL) để lưu trữ hiệu quả ngữ cảnh văn hóa và hồ sơ người dùng. Xây dựng dịch vụ backend và áp dụng framework Prompt 5 bước (5-step structured prompt) giúp tối đa hóa độ chính xác, tính nhất quán và khả năng thích ứng ngữ cảnh của LLM.",
+    techDetails: "Tích hợp mô hình ngôn ngữ lớn (LLM Integration) qua Google AI Studio API, xây dựng backend service bằng Python / Node.js, thiết kế cơ sở dữ liệu quan hệ với Supabase (PostgreSQL), tối ưu kỹ thuật Prompt Engineering nâng cao. Dự án đạt điểm số chính thức 86.75/100 từ Hội đồng Giám khảo Quốc gia.",
+    techStack: ["Python", "Node.js", "Supabase (PostgreSQL)", "Prompt Engineering", "LLM Integration", "Google AI Studio"],
+    githubUrl: "https://github.com/woawynk",
     demoUrl: ""
   },
   {
     id: "proj-2",
+    title: "RescueRoute – Emergency Vehicle Routing",
+    category: "ai",
+    badge: "Đồ án Cơ sở AI (HCMUS)",
+    tag: "Dijkstra & Genetic",
+    icon: "navigation",
+    isPinned: true, // Ghim 2 (Top 2 CV)
+    shortDesc: "Ứng dụng web định tuyến tìm lộ trình di chuyển tối ưu cho xe cấp cứu trong điều kiện giao thông đô thị biến thiên.",
+    problem: "Trong các đô thị lớn, xe cấp cứu thường xuyên đối mặt với tình trạng tắc đường, đèn tín hiệu và rào cản bất ngờ. Thuật toán tìm đường thông thường chỉ tính khoảng cách hình học ngắn nhất mà bỏ qua yếu tố thời gian thực và mật độ lưu thông.",
+    role: "Algorithm & Software Engineer: Trực tiếp hiện thực hóa 2 giải thuật tìm đường Dijkstra và Genetic Algorithm (Giải thuật di truyền). Thiết kế hàm chi phí tùy biến (Custom Cost Function) kết hợp các chỉ số thực tế để cân bằng tối ưu giữa tốc độ thực thi và độ tối ưu của cung đường. Xây dựng framework tự động đo lường hiệu năng (Automated Benchmarking).",
+    techDetails: "Lập trình thuật toán bằng Python, xây dựng giao diện ứng dụng web tương tác, mô hình hóa ma trận trọng số chi phí đồ thị giao thông. Thiết lập hệ thống benchmark tự động để so sánh và đánh giá hiệu năng thuật toán trong nhiều kịch bản nghẽn mạng khác nhau.",
+    techStack: ["Python", "Web Development", "Dijkstra's Algorithm", "Genetic Algorithm", "Benchmarking"],
+    githubUrl: "https://github.com/woawynk",
+    demoUrl: ""
+  },
+  {
+    id: "proj-3",
+    title: "Smart File Organizer",
+    category: "software",
+    badge: "Personal Project",
+    tag: "Python Automation",
+    icon: "folder-archive",
+    isPinned: true, // Ghim 3 (Top 3 CV)
+    shortDesc: "Công cụ Desktop tự động phân loại, sắp xếp và tối ưu hóa tệp tin hệ thống theo cấu trúc thư mục và định dạng mở rộng.",
+    problem: "Thư mục công việc và tải về trên máy tính thường xuyên bị quá tải, lộn xộn sau thời gian dài sử dụng, gây mất thời gian tra cứu và giảm hiệu suất làm việc hàng ngày của lập trình viên.",
+    role: "Solo Developer: Thiết kế và phát triển toàn bộ công cụ tự động hóa desktop bằng Python. Xử lý các thao tác hệ thống tệp tin cấp hệ điều hành (di chuyển, đổi tên, phân luồng theo đuôi file và cây thư mục) một cách an toàn và sạch sẽ, giúp tự động hóa các tác vụ lặp lại và nâng cao hiệu quả làm việc.",
+    techDetails: "Sử dụng Python Scripting và các module hệ điều hành (OS File System Operations, Pathlib, Shutil). Xử lý an toàn các ngoại lệ về xung đột tên file, quyền truy cập tệp và tối ưu tốc độ quét dữ liệu dung lượng lớn.",
+    techStack: ["Python", "OS File System Operations", "Scripting", "Automation"],
+    githubUrl: "https://github.com/woawynk",
+    demoUrl: ""
+  },
+  {
+    id: "proj-4",
     title: "Xử Lý & Biến Đổi Ảnh Bằng Ma Trận",
     category: "ai",
-    badge: "Toán ứng dụng CNTT",
+    badge: "Toán ứng dụng CNTT (HCMUS)",
     tag: "Python & Matrix",
     icon: "image",
-    isPinned: true, // Ghim 2
+    isPinned: false,
     shortDesc: "Áp dụng đại số tuyến tính và phép toán ma trận để phân tích, biến đổi hình học và xử lý ảnh số không dùng thư viện xử lý ảnh có sẵn.",
     problem: "Hiểu rõ cơ chế bản chất của ảnh số (Digital Image) dưới dạng Tensor dữ liệu đa chiều, thay vì chỉ sử dụng các hàm có sẵn của OpenCV. Cần tự xây dựng các thuật toán biến đổi hình học và lọc ma trận từ đầu.",
     role: "Lập trình các phép biến đổi ảnh: Phép quay không gian (Rotation matrix), phép co giãn (Scaling), biến đổi tương phản Affine và thiết kế nhân tích chập (Convolution Kernel) để lọc làm mịn hoặc tách biên (Edge detection).",
     techDetails: "Toàn bộ thuật toán được hiện thực bằng Python thuần kết hợp NumPy để xử lý vector hóa dữ liệu ma trận ảnh 2D/3D. Đây là nền tảng toán học nền móng cho Computer Vision và mạng nơ-ron tích chập (CNN).",
     techStack: ["Linear Algebra", "Matrix Convolution", "Tensor", "Python", "NumPy"],
-    githubUrl: "https://github.com",
-    demoUrl: ""
-  },
-  {
-    id: "proj-3",
-    title: "App Mobile Hỗ Trợ Du Lịch",
-    category: "software",
-    badge: "Tư duy tính toán",
-    tag: "Dart Mobile App",
-    icon: "smartphone",
-    isPinned: true, // Ghim 3 (Đủ tối đa 3 dự án)
-    shortDesc: "Ứng dụng di động giúp gợi ý lộ trình tham quan, tra cứu địa điểm và tiện ích cho người du lịch với giao diện trực quan.",
-    problem: "Khách du lịch thường mất nhiều thời gian tra cứu phân tán thông tin địa điểm, khó khăn trong việc sắp xếp lộ trình tham quan hợp lý và cần một ứng dụng di động có trải nghiệm mượt mà, thân thiện.",
-    role: "Đảm nhận toàn bộ phần xây dựng giao diện người dùng (Frontend) trên nền tảng Dart: thiết kế UI responsive, kiến trúc component tái sử dụng, tối ưu luồng điều hướng màn hình và xử lý trạng thái hiển thị.",
-    techDetails: "Sử dụng ngôn ngữ Dart, áp dụng tư duy tính toán (Computational Thinking) để chia nhỏ bài toán hiển thị dữ liệu du lịch dạng danh sách và thẻ trực quan. Tích hợp xử lý tương tác chạm, bộ lọc địa điểm theo bán kính.",
-    techStack: ["Dart", "Mobile UI", "Component Architecture", "UX Flow"],
-    githubUrl: "https://github.com",
-    demoUrl: ""
-  },
-  {
-    id: "proj-4",
-    title: "Hệ Thống Truyền Video Qua Giao Thức Mạng",
-    category: "system",
-    badge: "Mạng máy tính",
-    tag: "Networking & Socket",
-    icon: "video",
-    isPinned: false,
-    shortDesc: "Mô phỏng cơ chế đóng gói, truyền tải và đồng bộ luồng video qua các tầng giao thức mạng thời gian thực.",
-    problem: "Truyền tải video qua mạng đòi hỏi xử lý bài toán băng thông, kiểm soát độ trễ (Latency) và mất gói tin (Packet loss). Cần so sánh ưu nhược điểm giữa giao thức tin cậy TCP và giao thức thời gian thực UDP.",
-    role: "Lập trình socket truyền nhận các khối dữ liệu hình ảnh/video giữa Client và Server, đo đạc thông lượng mạng (Throughput) và phân tích ảnh hưởng của nghẽn mạng đến chất lượng phát video.",
-    techDetails: "Ứng dụng Socket Programming, phân tích mô hình OSI và bộ giao thức TCP/IP. Xây dựng bộ đệm (Buffer) tại phía Client để giảm hiện tượng giật khung hình khi mạng dao động.",
-    techStack: ["Socket Programming", "TCP/IP", "UDP Streaming", "Network Protocols"],
-    githubUrl: "https://github.com",
+    githubUrl: "https://github.com/woawynk",
     demoUrl: ""
   },
   {
     id: "proj-5",
-    title: "Thiết Kế Mạch Arduino & Mô Hình 3D",
-    category: "system",
-    badge: "Vật lý cho CNTT",
-    tag: "IoT & Hardware",
-    icon: "circuit-board",
-    isPinned: false,
-    shortDesc: "Thiết kế vỏ phần cứng 3D bằng Fusion 360, lập trình vi điều khiển Arduino đọc cảm biến và truyền dữ liệu qua MQTT.",
-    problem: "Kết nối thế giới vật lý với hệ thống phần mềm: Cần tạo ra một thiết bị phần cứng hoàn chỉnh có vỏ bảo vệ chuẩn kích thước, đọc tín hiệu cảm biến thời gian thực và gửi về máy chủ.",
-    role: "Thiết kế mô hình vỏ hộp 3D bằng phần mềm Autodesk Fusion 360, lắp ráp mạch điện tử với Arduino, lập trình đọc dữ liệu cảm biến và gửi gói tin qua giao thức MQTT.",
-    techDetails: "Lập trình C/C++ nhúng trên Arduino, sử dụng giao thức nhẹ MQTT phù hợp cho thiết bị IoT băng thông thấp. Nắm vững nền tảng để triển khai mô hình Edge AI (AI trên thiết bị biên) trong tương lai.",
-    techStack: ["Arduino C++", "Autodesk Fusion 360", "MQTT Protocol", "IoT Hardware"],
-    githubUrl: "https://github.com",
-    demoUrl: ""
-  },
-  {
-    id: "proj-6",
     title: "Mô Phỏng Game Bài Poker Bằng C++",
     category: "software",
-    badge: "Cơ sở lập trình",
-    tag: "C++ Algorithm",
+    badge: "Cơ sở lập trình (HCMUS)",
+    tag: "C++ OOP & Logic",
     icon: "gamepad-2",
     isPinned: false,
     shortDesc: "Xây dựng trò chơi bài Poker hoàn chỉnh bằng C++ với thuật toán xáo bài ngẫu nhiên và phân loại sức mạnh lá bài.",
@@ -131,7 +115,23 @@ const DEFAULT_PROJECTS = [
     role: "Xây dựng toàn bộ kiến trúc giải thuật: Thuật toán xáo bài Fisher-Yates, cấu trúc dữ liệu lưu trữ lá bài và hàm đánh giá điểm số của từng bộ bài để xác định người chiến thắng tự động.",
     techDetails: "Ứng dụng C++ hướng đối tượng (OOP), quản lý bộ nhớ con trỏ chặt chẽ, mảng 2 chiều và cấu trúc struct/class. Rèn luyện tư duy thuật toán và kỹ năng lập trình không lỗi logic.",
     techStack: ["C++", "OOP", "Algorithm", "Game Logic"],
-    githubUrl: "https://github.com",
+    githubUrl: "https://github.com/woawynk",
+    demoUrl: ""
+  },
+  {
+    id: "proj-6",
+    title: "Thiết Kế Mạch Arduino & Mô Hình 3D",
+    category: "system",
+    badge: "Vật lý cho CNTT (HCMUS)",
+    tag: "IoT & Hardware",
+    icon: "circuit-board",
+    isPinned: false,
+    shortDesc: "Thiết kế vỏ phần cứng 3D bằng Fusion 360, lập trình vi điều khiển Arduino đọc cảm biến và truyền dữ liệu qua MQTT.",
+    problem: "Kết nối thế giới vật lý với hệ thống phần mềm: Cần tạo ra một thiết bị phần cứng hoàn chỉnh có vỏ bảo vệ chuẩn kích thước, đọc tín hiệu cảm biến thời gian thực và gửi về máy chủ.",
+    role: "Thiết kế mô hình vỏ hộp 3D bằng phần mềm Autodesk Fusion 360, lắp ráp mạch điện tử với Arduino, lập trình đọc dữ liệu cảm biến và gửi gói tin qua giao thức MQTT.",
+    techDetails: "Lập trình C/C++ nhúng trên Arduino, sử dụng giao thức nhẹ MQTT phù hợp cho thiết bị IoT băng thông thấp. Nắm vững nền tảng để triển khai mô hình Edge AI trong tương lai.",
+    techStack: ["Arduino C++", "Autodesk Fusion 360", "MQTT Protocol", "IoT Hardware"],
+    githubUrl: "https://github.com/woawynk",
     demoUrl: ""
   }
 ];
