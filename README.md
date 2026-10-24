@@ -1,52 +1,73 @@
-# Hướng Dẫn Tùy Chỉnh IT Portfolio Website
+# Portfolio Cá Nhân - Huỳnh Thái Hoà (HCMUS - AI Engineer)
 
-Website Portfolio đã được xây dựng tại file [`index.html`](file:///c:/Users/HOA08/Desktop/Portfolio/index.html) với đầy đủ các phần cốt lõi và giao diện chuẩn ngành IT.
-
----
-
-## 1. Cấu Trúc Các Phần Trong Portfolio
-
-Dựa theo bài viết tham khảo trên Viblo và tiêu chuẩn tuyển dụng IT:
-
-1. **Hero Header (Mở đầu):**
-   - Lời chào ngắn gọn, định danh nghề nghiệp (`Full-Stack Software Engineer`, `React & Node.js Developer`).
-   - Hiệu ứng gõ chữ (Typing Effect) phong cách terminal.
-   - Thẻ code tương tác mô phỏng file `developer.ts` thể hiện tư duy lập trình viên.
-   - Nút gọi hành động (Call To Action): *Xem dự án*, *Tải CV*, *Liên hệ*.
-
-2. **About Me (Giới thiệu bản thân):**
-   - Tóm tắt định hướng, triết lý viết code sạch (`Clean Architecture`), khả năng nghiên cứu sâu và tinh thần làm việc nhóm.
-
-3. **Skills & Tech Stack (Năng lực kỹ thuật):**
-   - Phân loại rõ ràng 4 nhóm: **Front-end**, **Back-end**, **Database**, **DevOps & Tools**.
-   - Thanh tiến độ năng lực kỹ thuật và danh sách badges công nghệ phổ biến.
-
-4. **Featured Projects (Dự án tiêu biểu):**
-   - Bộ lọc phân loại (`Fullstack`, `Frontend`, `Backend & AI`).
-   - Mỗi card dự án gồm: Tiêu đề, mô tả bài toán, điểm nổi bật kỹ thuật, danh sách công nghệ và link tới **GitHub Repository / Live Demo**.
-
-5. **Experience & Education (Kinh nghiệm & Học vấn):**
-   - Dòng thời gian (Timeline) thể hiện quá trình thực tập, dự án freelance, học vấn chuyên ngành CNTT và các chứng chỉ (AWS, IELTS, chứng chỉ khóa học).
-
-6. **Interactive CLI / Terminal (Tính năng đặc trưng IT):**
-   - Cho phép nhà tuyển dụng hoặc người xem gõ lệnh trực tiếp (`help`, `about`, `skills`, `projects`, `contact`) ngay trên trình duyệt.
-
-7. **Contact Form & Social Links (Liên hệ):**
-   - Form gửi thư điện tử, email, số điện thoại, link LinkedIn, GitHub và bài viết blog/Viblo.
+Website Portfolio chuẩn IT dành cho sinh viên ngành Công nghệ Tri thức - ĐH Khoa học Tự nhiên (HCMUS), định hướng **AI Engineer / Software Engineer**.
 
 ---
 
-## 2. Cách Xem Trực Tiếp Trên Trình Duyệt
+## 🌟 Tính Năng Nổi Bật
 
-- Bạn chỉ cần nhấp đúp vào file [`index.html`](file:///c:/Users/HOA08/Desktop/Portfolio/index.html) để mở trực tiếp trong trình duyệt (Chrome, Edge, Firefox, v.v.).
-- Hoặc nếu dùng VS Code, có thể cài extension **Live Server** và nhấn **Go Live**.
+1. **Khung Tiêu Điểm Top 3 Dự Án (Pinned Showcase)**
+   - Đánh dấu tối đa **3 dự án tâm đắc nhất** lên một khung vinh danh riêng biệt với viền ánh kim và huy hiệu `★ TOP FEATURED`.
+   - Giới hạn chặt chẽ: chỉ cho phép ghim tối đa 3 dự án cùng một lúc.
+
+2. **Dữ Liệu Động Đồng Bộ Supabase Cloud**
+   - Dữ liệu dự án và trạng thái ghim được lưu lâu dài trên **Supabase PostgreSQL**.
+   - Hỗ trợ **GitHub Pages** trực tiếp qua `SUPABASE_URL` + `SUPABASE_ANON_KEY` (Row Level Security).
+   - Hỗ trợ chạy local bằng Node.js Server qua biến môi trường duy nhất `DATABASE_URL`.
+
+3. **Bảo Mật Băm SHA-256 Cho Creator Mode**
+   - Mã PIN admin được băm SHA-256, lưu trong bảng `app_config` trên Supabase.
+   - Mọi điểm vào Creator Mode (nút badge, phím tắt `Ctrl+Shift+A`, lệnh `admin` trong CLI) đều yêu cầu xác thực.
+   - Đổi PIN trực tiếp trên giao diện → tự đồng bộ mã băm mới lên Cloud.
 
 ---
 
-## 3. Cách Tùy Chỉnh Thông Tin Cá Nhân
+## 🚀 Thiết Lập GitHub Pages + Supabase (Khuyên Dùng)
 
-Trong file [`index.html`](file:///c:/Users/HOA08/Desktop/Portfolio/index.html):
-- **Tên & Chức danh:** Tìm `Nguyễn Văn A` và thay bằng tên bạn.
-- **Link GitHub, LinkedIn, Viblo:** Tìm các thuộc tính `href="https://github.com"` và dán link profile cá nhân của bạn vào.
-- **Dự án:** Thay đổi tên dự án, ảnh mô tả hoặc công nghệ phù hợp với những đồ án môn học hoặc dự án thực tế bạn đã làm.
-- **File CV:** Thay link ở nút `Tải CV` thành đường dẫn tới file PDF CV của bạn (ví dụ: `cv-nguyen-van-a.pdf`).
+### Bước 1: Khởi tạo Database
+1. Đăng nhập [supabase.com](https://supabase.com) → tạo Project mới (miễn phí).
+2. Vào **SQL Editor** → mở file [`supabase_schema.sql`](./supabase_schema.sql), copy toàn bộ và nhấn **Run**.
+   *(Tự tạo bảng, bật RLS, seed 6 đồ án HCMUS và PIN mặc định `1234`).*
+
+### Bước 2: Điền key vào `script.js`
+1. Trong Supabase → **Project Settings → API**, copy:
+   - **Project URL**
+   - **anon public Key**
+2. Mở [`script.js`](./script.js) tại dòng 14–20 và điền vào:
+```javascript
+const SUPABASE_URL = "https://your-project.supabase.co"; // ← URL của bạn
+const SUPABASE_ANON_KEY = "your-anon-key";              // ← Anon key của bạn
+```
+3. Push code lên GitHub → bật **GitHub Pages** (Settings → Pages → branch `main`).
+
+> [!IMPORTANT]
+> `SUPABASE_ANON_KEY` (anon/public key) **an toàn để để trong code frontend** vì đã được bảo vệ bởi Row Level Security (RLS) ở Supabase. Không để `service_role` key vào đây.
+
+---
+
+## 💻 Chạy Local Bằng Node.js (Tùy Chọn)
+
+```bash
+# 1. Cài dependencies
+npm install
+
+# 2. Điền DATABASE_URL vào file .env
+# DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres
+
+# 3. Chạy server
+npm start
+# → Mở http://localhost:3000
+```
+
+---
+
+## 🔑 Creator Mode & Mã PIN
+
+| Cách vào | Mô tả |
+|----------|-------|
+| Bấm badge **`HR View`** | Nhập PIN để chuyển sang Creator Mode |
+| Phím tắt `Ctrl+Shift+A` | Tắt/mở Creator Mode |
+| Gõ `admin` trong Terminal `[~]` | Yêu cầu PIN, xác thực băm SHA-256 |
+
+- **PIN mặc định:** `1234`
+- **Đổi PIN:** Vào Creator Mode → Trang Dự án → nút **`Đổi mã PIN`** → hệ thống lưu mã băm mới lên Supabase tự động.

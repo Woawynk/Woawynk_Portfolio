@@ -11,6 +11,23 @@
  * ==========================================================================
  */
 
+// ==================== CẤU HÌNH SUPABASE CHO GITHUB PAGES ====================
+// Điền thông tin dự án Supabase của bạn tại đây để web chạy trực tiếp trên GitHub Pages.
+// Lấy trong Supabase Dashboard -> Project Settings -> API:
+const SUPABASE_URL = "https://kmmtohjsmnondasrnbog.supabase.co"; // Thay bằng Project URL của bạn
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttbXRvaGpzbW5vbmRhc3JuYm9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NTQ4MDYsImV4cCI6MjEwODQzMDgwNn0.Jb90K8Lx_9MRhgaHhB0Dm5XXOIVeZyzegEGqqQCS7Co"; // Thay bằng Anon / Public API Key của bạn
+
+// Khởi tạo Supabase Client (sử dụng thư viện Supabase JS SDK từ CDN)
+let supabaseClient = null;
+if (window.supabase && SUPABASE_URL && !SUPABASE_URL.includes("your-project") && SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== "your-anon-key") {
+  try {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("✓ Đã kết nối Supabase Client SDK thành công!");
+  } catch (e) {
+    console.warn("Lỗi khởi tạo Supabase Client:", e);
+  }
+}
+
 // Danh sách dự án mặc định theo background HCMUS chuẩn cấu trúc 3 mục
 const DEFAULT_PROJECTS = [
   {
@@ -205,8 +222,66 @@ async function hashString(str) {
   return pureSha256(str);
 }
 
-// Lấy mã băm PIN từ localStorage hoặc mặc định băm của "1234"
-function getStoredAdminHash() {
+// Chuyển đổi dữ liệu từ Supabase PostgreSQL (snake_case) sang camelCase cho Client
+function mapProjectRow(row) {
+  let stack = [];
+  try {
+    stack = typeof row.tech_stack === 'string' ? JSON.parse(row.tech_stack) : (row.tech_stack || []);
+  } catch (e) {
+    stack = [];
+  }
+  return {
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    badge: row.badge,
+    tag: row.tag,
+    icon: row.icon || 'folder-code',
+    isPinned: !!row.is_pinned,
+    shortDesc: row.short_desc,
+    problem: row.problem,
+    role: row.role,
+    techDetails: row.tech_details,
+    techStack: stack,
+    githubUrl: row.github_url,
+    demoUrl: row.demo_url,
+    createdAt: row.created_at
+  };
+}
+
+// Lấy mã băm PIN từ Supabase SDK (trên GitHub Pages), backend API (localhost), hoặc localStorage
+async function getStoredAdminHash() {
+  // 1. Thử qua Supabase Client SDK trực tiếp (dành cho GitHub Pages)
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('app_config')
+        .select('value')
+        .eq('key', 'admin_pin_hash')
+        .maybeSingle();
+      if (!error && data && data.value) {
+        localStorage.setItem("thaihoa_admin_hash", data.value);
+        return data.value;
+      }
+    } catch (e) {
+      console.warn("Lỗi đọc PIN từ Supabase SDK:", e);
+    }
+  }
+
+  // 2. Thử qua backend API (nếu có server chạy)
+  try {
+    const res = await fetch('/api/admin/pin-hash');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.hash) {
+        localStorage.setItem("thaihoa_admin_hash", data.hash);
+        return data.hash;
+      }
+    }
+  } catch (e) {
+    // Offline hoặc static host
+  }
+
   const storedHash = localStorage.getItem("thaihoa_admin_hash");
   if (storedHash) return storedHash;
 
@@ -226,11 +301,11 @@ function getStoredAdminHash() {
 async function verifyAdminPIN(inputPin) {
   if (!inputPin) return false;
   const inputHash = await hashString(inputPin.trim());
-  const storedHash = getStoredAdminHash();
+  const storedHash = await getStoredAdminHash();
   return inputHash === storedHash;
 }
 
-// Hàm đổi mã PIN ngay trên giao diện: băm và lưu vào localStorage
+// Hàm đổi mã PIN ngay trên giao diện: băm và lưu vào Supabase + localStorage
 window.changeAdminPIN = async function() {
   const oldInput = prompt("Xác thực: Nhập mã PIN hiện tại của bạn:");
   if (oldInput === null) return;
@@ -247,14 +322,103 @@ window.changeAdminPIN = async function() {
     return;
   }
 
+  const oldHash = await hashString(oldInput.trim());
   const newHash = await hashString(newPin.trim());
+
+  // 1. Thử lưu qua Supabase Client SDK trực tiếp (GitHub Pages)
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient
+        .from('app_config')
+        .upsert({ key: 'admin_pin_hash', value: newHash });
+      if (!error) {
+        localStorage.setItem("thaihoa_admin_hash", newHash);
+        alert("✓ Đã đổi mã PIN thành công! Mã băm SHA-256 mới đã được lưu trực tiếp trên Supabase (GitHub Pages).");
+        return;
+      }
+    } catch (e) {
+      console.warn("Lỗi lưu Supabase SDK:", e);
+    }
+  }
+
+  // 2. Thử đồng bộ lên Supabase qua backend API
+  try {
+    const res = await fetch('/api/admin/pin-hash', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ oldHash, newHash })
+    });
+    if (res.ok) {
+      localStorage.setItem("thaihoa_admin_hash", newHash);
+      alert("✓ Đã đổi mã PIN thành công! Mã băm SHA-256 mới đã được đồng bộ lên Supabase qua API.");
+      return;
+    }
+  } catch (e) {
+    console.warn("Backend offline, cập nhật local:", e);
+  }
+
   localStorage.setItem("thaihoa_admin_hash", newHash);
-  localStorage.removeItem("thaihoa_admin_pin"); // Đảm bảo không lưu chuỗi plain text
+  localStorage.removeItem("thaihoa_admin_pin");
   alert("✓ Đã đổi mã PIN thành công! Hệ thống đã mã hóa và lưu mã băm SHA-256 an toàn.");
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Nạp dữ liệu offline trước để giao diện hiển thị ngay lập tức
   loadProjectsFromStorage();
+
+  // Đồng bộ dữ liệu động từ Supabase (Hỗ trợ cả GitHub Pages và Local Server)
+  async function loadProjectsFromSupabase() {
+    // 1. Thử tải trực tiếp bằng Supabase JS SDK (dành cho GitHub Pages)
+    if (supabaseClient) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('projects')
+          .select('*')
+          .order('is_pinned', { ascending: false })
+          .order('created_at', { ascending: false });
+
+        if (!error && Array.isArray(data) && data.length > 0) {
+          projectsData = data.map(mapProjectRow);
+          saveProjectsToStorage();
+          renderProjects();
+          const badge = document.getElementById('dbSyncBadge');
+          if (badge) {
+            badge.innerHTML = `
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Supabase Live (${projectsData.length} dự án)</span>
+            `;
+          }
+          return;
+        }
+      } catch (e) {
+        console.warn("Lỗi kết nối Supabase SDK:", e);
+      }
+    }
+
+    // 2. Thử tải qua Backend API (khi chạy localhost hoặc Node server)
+    try {
+      const res = await fetch('/api/projects');
+      if (res.ok) {
+        const json = await res.json();
+        if (json && Array.isArray(json.data) && json.data.length > 0) {
+          projectsData = json.data;
+          saveProjectsToStorage();
+          renderProjects();
+          const badge = document.getElementById('dbSyncBadge');
+          if (badge) {
+            badge.innerHTML = `
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Supabase Cloud (${projectsData.length} dự án)</span>
+            `;
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      console.log("Đang chạy chế độ local cache:", e.message);
+    }
+  }
+  loadProjectsFromSupabase();
 
   // Khởi tạo Icons Lucide
   if (window.lucide) {
@@ -338,8 +502,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. LOGIC PIN / UNPIN DỰ ÁN (TỐI ĐA 3 DỰ ÁN)
-  window.togglePinProject = function(id) {
+  // 2. LOGIC PIN / UNPIN DỰ ÁN (TỐI ĐA 3 DỰ ÁN CÙNG LÚC)
+  window.togglePinProject = async function(id) {
     const proj = projectsData.find(p => p.id === id);
     if (!proj) return;
 
@@ -347,34 +511,156 @@ document.addEventListener('DOMContentLoaded', () => {
       // Đang muốn ghim -> kiểm tra xem đã đủ 3 dự án chưa
       const currentPinnedCount = projectsData.filter(p => p.isPinned).length;
       if (currentPinnedCount >= 3) {
-        alert("Bạn chỉ có thể ghim (Pin) tối đa 3 dự án nổi bật nhất! Hãy bỏ ghim 1 dự án khác trước khi ghim thêm.");
+        alert("Bạn chỉ có thể ghim (Pin) tối đa 3 dự án nổi bật nhất vào Khung Tiêu Điểm! Hãy bỏ ghim 1 dự án khác trước khi ghim thêm.");
         return;
       }
-      proj.isPinned = true;
-    } else {
-      // Bỏ ghim
-      proj.isPinned = false;
     }
 
-    saveProjectsToStorage();
-    renderProjects();
+    const targetState = !proj.isPinned;
+
+    // 1. Thử qua Supabase Client SDK trực tiếp (dành cho GitHub Pages)
+    if (supabaseClient) {
+      try {
+        const { error } = await supabaseClient
+          .from('projects')
+          .update({ is_pinned: targetState })
+          .eq('id', id);
+        if (error) {
+          alert("Lỗi khi cập nhật trên Supabase: " + error.message);
+          return;
+        }
+        proj.isPinned = targetState;
+        saveProjectsToStorage();
+        renderProjects();
+        return;
+      } catch (e) {
+        console.warn("Lỗi Supabase SDK:", e);
+      }
+    }
+
+    // 2. Thử qua Backend API (nếu có server chạy)
+    try {
+      const res = await fetch(`/api/projects/${id}/pin`, { method: 'PUT' });
+      if (res.ok) {
+        const json = await res.json();
+        proj.isPinned = json.isPinned;
+        saveProjectsToStorage();
+        renderProjects();
+        return;
+      } else {
+        const err = await res.json();
+        alert(err.error || "Lỗi khi cập nhật trạng thái ghim trên Supabase!");
+        return;
+      }
+    } catch (e) {
+      // Fallback local
+      proj.isPinned = targetState;
+      saveProjectsToStorage();
+      renderProjects();
+    }
   };
 
-  // 3. RENDER DANH SÁCH DỰ ÁN (CÁC DỰ ÁN ĐƯỢC PIN SẼ TỰ ĐỘNG ĐỨNG ĐẦU)
+  // 3. RENDER DANH SÁCH DỰ ÁN (KHUNG RIÊNG TOP 3 PINNED & TOÀN BỘ DANH MỤC)
   const projectsGrid = document.getElementById('projectsGrid');
+  const pinnedShowcaseGrid = document.getElementById('pinnedShowcaseGrid');
+  const pinnedCountText = document.getElementById('pinnedCountText');
 
   function renderProjects() {
+    // 3.1 RENDER KHUNG RIÊNG: TOP 3 DỰ ÁN ĐƯỢC GHIM (PINNED SPOTLIGHT SHOWCASE)
+    const pinnedProjects = projectsData.filter(p => p.isPinned);
+    if (pinnedCountText) {
+      pinnedCountText.textContent = `${pinnedProjects.length}/3`;
+    }
+
+    if (pinnedShowcaseGrid) {
+      pinnedShowcaseGrid.innerHTML = '';
+      if (pinnedProjects.length === 0) {
+        pinnedShowcaseGrid.innerHTML = `
+          <div class="col-span-full py-8 text-center text-slate-500 font-mono text-xs border border-dashed border-[#232936] rounded-xl">
+            Chưa có dự án nào được ghim vào Khung Tiêu Điểm. (Vào Creator Mode và bấm icon Ghim để đánh dấu tối đa 3 dự án ưng ý nhất).
+          </div>
+        `;
+      } else {
+        pinnedProjects.forEach((proj, idx) => {
+          const card = document.createElement('div');
+          card.className = "pinned-spotlight-card rounded-2xl p-5 flex flex-col justify-between group hover:-translate-y-1 transition duration-300 relative cursor-pointer border";
+          
+          card.onclick = (e) => {
+            if (e.target.closest('.admin-btn') || e.target.closest('.pin-btn') || e.target.closest('a')) return;
+            window.openProjectDetail(proj.id);
+          };
+
+          let adminActions = '';
+          if (currentMode === 'admin') {
+            adminActions = `
+              <div class="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-[#0B0E14]/90 p-1 rounded-lg border border-[#2B3545]">
+                <button onclick="event.stopPropagation(); togglePinProject('${proj.id}')" title="Bỏ ghim khỏi Tiêu điểm" class="pin-btn p-1 text-amber-400 hover:text-amber-300 transition">
+                  <i data-lucide="pin-off" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="event.stopPropagation(); editProject('${proj.id}')" title="Sửa dự án" class="admin-btn p-1 hover:text-sky-400 text-slate-400 transition">
+                  <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="event.stopPropagation(); deleteProject('${proj.id}')" title="Xóa dự án" class="admin-btn p-1 hover:text-rose-400 text-slate-400 transition">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            `;
+          }
+
+          const tagsHtml = (proj.techStack || []).slice(0, 3).map(t => 
+            `<span class="px-2 py-0.5 rounded bg-[#181D26] text-amber-200/90 text-[11px] font-mono border border-amber-500/20">${t}</span>`
+          ).join('');
+
+          card.innerHTML = `
+            ${adminActions}
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[10px] font-mono font-bold border border-amber-500/30 flex items-center gap-1">
+                    <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>
+                    <span>TOP ${idx + 1} FEATURED</span>
+                  </span>
+                  <span class="text-[11px] text-slate-400 font-mono">${proj.badge || 'Đồ án'}</span>
+                </div>
+                <div class="w-8 h-8 rounded-lg bg-[#181D26] border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-110 transition shrink-0 ${currentMode === 'admin' ? 'mr-24' : ''}">
+                  <i data-lucide="${proj.icon || 'star'}" class="w-4 h-4"></i>
+                </div>
+              </div>
+
+              <h4 class="text-base font-bold text-white group-hover:text-amber-300 transition line-clamp-1">
+                ${proj.title}
+              </h4>
+
+              <p class="text-xs text-slate-300 leading-relaxed line-clamp-2">
+                ${proj.problem || proj.shortDesc || ''}
+              </p>
+
+              <div class="p-2.5 rounded-xl bg-[#090C12] border border-[#1E2430] text-[11px] text-slate-400 line-clamp-2">
+                <strong class="text-emerald-400 font-mono">Vai trò:</strong> ${proj.role || 'Phụ trách nghiên cứu & triển khai cốt lõi.'}
+              </div>
+            </div>
+
+            <div class="pt-4 mt-4 border-t border-[#1E2430] flex items-center justify-between">
+              <div class="flex flex-wrap gap-1">
+                ${tagsHtml}
+                ${(proj.techStack && proj.techStack.length > 3) ? `<span class="text-[10px] text-amber-400/80 font-mono self-center">+${proj.techStack.length - 3}</span>` : ''}
+              </div>
+              <span class="text-xs font-mono text-amber-400 flex items-center gap-1 group-hover:translate-x-1 transition shrink-0 ml-2">
+                <span>Xem giải thuật</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </span>
+            </div>
+          `;
+          pinnedShowcaseGrid.appendChild(card);
+        });
+      }
+    }
+
+    // 3.2 RENDER DANH MỤC TOÀN BỘ DỰ ÁN
     if (!projectsGrid) return;
     projectsGrid.innerHTML = '';
 
-    // Sắp xếp: Dự án isPinned=true sẽ luôn ưu tiên đứng lên đầu danh sách
-    const sortedProjects = [...projectsData].sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-      return 0;
-    });
-
-    const filtered = sortedProjects.filter(item => {
+    const filtered = projectsData.filter(item => {
       if (activeCategoryFilter === 'all') return true;
       return item.category === activeCategoryFilter;
     });
@@ -391,26 +677,22 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(proj => {
       const card = document.createElement('div');
       
-      // Viền nổi bật hơn nếu dự án được ghim (Pin)
       const borderClass = proj.isPinned 
-        ? "border-sky-500/40 bg-gradient-to-b from-[#131926] to-[#0E121A]" 
+        ? "border-amber-500/40 bg-gradient-to-b from-[#141A26] to-[#0E121A]" 
         : "border-[#232936] hover:border-slate-500/40";
 
       card.className = `dark-card rounded-2xl p-5 flex flex-col justify-between group hover:-translate-y-1 transition duration-300 relative cursor-pointer border ${borderClass}`;
       
-      // Gán sự kiện click vào card mở Modal 3 mục chi tiết
       card.onclick = (e) => {
         if (e.target.closest('.admin-btn') || e.target.closest('.pin-btn') || e.target.closest('a')) return;
         window.openProjectDetail(proj.id);
       };
 
-      // Nút điều khiển Edit/Delete chỉ hiện khi ở Admin Mode
       let adminActions = '';
       if (currentMode === 'admin') {
         adminActions = `
           <div class="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-[#0B0E14]/90 p-1 rounded-lg border border-[#2B3545]">
-            <!-- Nút Pin nhanh trong Admin -->
-            <button onclick="event.stopPropagation(); togglePinProject('${proj.id}')" title="${proj.isPinned ? 'Bỏ ghim' : 'Ghim dự án (Tối đa 3)'}" class="pin-btn p-1 ${proj.isPinned ? 'text-amber-400' : 'text-slate-500'} hover:text-amber-300 transition">
+            <button onclick="event.stopPropagation(); togglePinProject('${proj.id}')" title="${proj.isPinned ? 'Bỏ ghim khỏi Tiêu điểm' : 'Ghim dự án (Tối đa 3)'}" class="pin-btn p-1 ${proj.isPinned ? 'text-amber-400' : 'text-slate-500'} hover:text-amber-300 transition">
               <i data-lucide="pin" class="w-3.5 h-3.5 ${proj.isPinned ? 'fill-amber-400' : ''}"></i>
             </button>
             <button onclick="event.stopPropagation(); editProject('${proj.id}')" title="Sửa dự án" class="admin-btn p-1 hover:text-sky-400 text-slate-400 transition">
@@ -427,18 +709,16 @@ document.addEventListener('DOMContentLoaded', () => {
         `<span class="px-2 py-0.5 rounded bg-[#181D26] text-slate-300 text-[11px] font-mono border border-[#242C3A]">${t}</span>`
       ).join('');
 
-      // Huy hiệu PIN NỔI BẬT (Hiện cả cho HR thấy đây là dự án tâm đắc nhất)
       const pinBadge = proj.isPinned ? `
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
           <i data-lucide="pin" class="w-2.5 h-2.5 fill-amber-400"></i>
-          <span>Featured</span>
+          <span>Pinned</span>
         </span>
       ` : '';
 
       card.innerHTML = `
         ${adminActions}
         <div class="space-y-3">
-          <!-- Top Badge & Icon -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="px-2.5 py-0.5 rounded bg-[#181D26] text-slate-300 text-[11px] font-mono border border-[#2B3545]">
@@ -446,17 +726,15 @@ document.addEventListener('DOMContentLoaded', () => {
               </span>
               ${pinBadge}
             </div>
-            <div class="w-8 h-8 rounded-lg bg-[#181D26] border border-[#242C3A] flex items-center justify-center text-sky-400 group-hover:scale-110 transition shrink-0 ${currentMode === 'admin' ? 'mr-20' : ''}">
+            <div class="w-8 h-8 rounded-lg bg-[#181D26] border border-[#242C3A] flex items-center justify-center text-sky-400 group-hover:scale-110 transition shrink-0 ${currentMode === 'admin' ? 'mr-24' : ''}">
               <i data-lucide="${proj.icon || 'folder-code'}" class="w-4 h-4"></i>
             </div>
           </div>
 
-          <!-- Title -->
-          <h4 class="text-base font-bold text-white group-hover:text-sky-300 transition line-clamp-1 flex items-center gap-1.5">
-            <span>${proj.title}</span>
+          <h4 class="text-base font-bold text-white group-hover:text-sky-300 transition line-clamp-1">
+            ${proj.title}
           </h4>
 
-          <!-- Short Description -->
           <p class="text-xs text-slate-400 leading-relaxed line-clamp-2">
             ${proj.shortDesc || proj.problem || ''}
           </p>
@@ -507,63 +785,70 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!detailModal) {
       detailModal = document.createElement('div');
       detailModal.id = 'projectDetailModal';
-      detailModal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden';
+      detailModal.className = 'fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md hidden';
       document.body.appendChild(detailModal);
     }
 
+    // Đóng khi click ngoài khung modal trên mobile/tablet
+    detailModal.onclick = (e) => {
+      if (e.target === detailModal) {
+        window.closeProjectDetail();
+      }
+    };
+
     const techTags = (proj.techStack || []).map(t => 
-      `<span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 text-xs font-mono border border-[#242C3A]">${t}</span>`
+      `<span class="px-2.5 py-1 rounded bg-[#181D26] text-slate-200 text-[11px] sm:text-xs font-mono border border-[#242C3A]">${t}</span>`
     ).join('');
 
     detailModal.innerHTML = `
-      <div class="w-full max-w-2xl dark-card rounded-2xl overflow-hidden border border-[#2B3545] shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="w-full max-w-2xl dark-card rounded-2xl overflow-hidden border border-[#2B3545] shadow-2xl flex flex-col max-h-[92dvh] sm:max-h-[90vh]">
         <!-- Header -->
-        <div class="bg-[#0B0E14] px-6 py-4 border-b border-[#1E2430] flex items-start justify-between gap-4">
+        <div class="bg-[#0B0E14] px-4 py-3 sm:px-6 sm:py-4 border-b border-[#1E2430] flex items-start justify-between gap-3">
           <div>
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
               <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-sky-500/10 text-sky-400 border border-sky-500/20">${proj.badge || 'Đồ án'}</span>
               ${proj.isPinned ? '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">★ Featured Project</span>' : ''}
-              <span class="text-xs font-mono text-slate-400">${proj.tag || 'HCMUS'}</span>
+              <span class="text-[11px] font-mono text-slate-400">${proj.tag || 'HCMUS'}</span>
             </div>
-            <h3 class="text-lg sm:text-xl font-bold text-white">${proj.title}</h3>
+            <h3 class="text-base sm:text-xl font-bold text-white leading-snug">${proj.title}</h3>
           </div>
-          <button onclick="closeProjectDetail()" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition shrink-0">
+          <button onclick="closeProjectDetail()" class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
 
         <!-- 3 Mục Nội Dung Chính -->
-        <div class="p-6 overflow-y-auto space-y-6 text-xs sm:text-sm font-sans">
+        <div class="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 text-xs sm:text-sm font-sans">
           
           <!-- Mục 1: Bài toán cần giải quyết -->
-          <div class="space-y-2">
+          <div class="space-y-1.5 sm:space-y-2">
             <div class="flex items-center gap-2 font-mono font-bold text-xs uppercase tracking-wider text-sky-400">
-              <i data-lucide="help-circle" class="w-4 h-4"></i>
+              <i data-lucide="help-circle" class="w-4 h-4 shrink-0"></i>
               <span>1. Bài Toán Cần Giải Quyết (Problem & Objective)</span>
             </div>
-            <div class="p-4 rounded-xl bg-[#0A0D13] border border-[#1E2430] text-slate-300 leading-relaxed text-xs sm:text-sm">
+            <div class="p-3.5 sm:p-4 rounded-xl bg-[#0A0D13] border border-[#1E2430] text-slate-300 leading-relaxed text-xs sm:text-sm">
               ${proj.problem || proj.shortDesc || 'Đang cập nhật thông tin bài toán chi tiết.'}
             </div>
           </div>
 
           <!-- Mục 2: Vai trò phụ trách cụ thể -->
-          <div class="space-y-2">
+          <div class="space-y-1.5 sm:space-y-2">
             <div class="flex items-center gap-2 font-mono font-bold text-xs uppercase tracking-wider text-emerald-400">
-              <i data-lucide="user-check" class="w-4 h-4"></i>
+              <i data-lucide="user-check" class="w-4 h-4 shrink-0"></i>
               <span>2. Vai Trò Của Huỳnh Thái Hoà (Personal Contribution)</span>
             </div>
-            <div class="p-4 rounded-xl bg-[#0A0D13] border border-[#1E2430] text-slate-300 leading-relaxed text-xs sm:text-sm">
+            <div class="p-3.5 sm:p-4 rounded-xl bg-[#0A0D13] border border-[#1E2430] text-slate-300 leading-relaxed text-xs sm:text-sm">
               ${proj.role || 'Phụ trách nghiên cứu và hiện thực phần cốt lõi của đồ án.'}
             </div>
           </div>
 
           <!-- Mục 3: Giải thuật & Kỹ thuật cốt lõi -->
-          <div class="space-y-2">
+          <div class="space-y-1.5 sm:space-y-2">
             <div class="flex items-center gap-2 font-mono font-bold text-xs uppercase tracking-wider text-amber-400">
-              <i data-lucide="cpu" class="w-4 h-4"></i>
+              <i data-lucide="cpu" class="w-4 h-4 shrink-0"></i>
               <span>3. Giải Thuật & Công Nghệ Cốt Lõi (Algorithms & Tech Stack)</span>
             </div>
-            <div class="p-4 rounded-xl bg-[#0A0D13] border border-[#1E2430] space-y-3 text-slate-300 leading-relaxed text-xs sm:text-sm">
+            <div class="p-3.5 sm:p-4 rounded-xl bg-[#0A0D13] border border-[#1E2430] space-y-3 text-slate-300 leading-relaxed text-xs sm:text-sm">
               <div>${proj.techDetails || 'Ứng dụng các thuật toán và thư viện chuyên môn để giải quyết bài toán.'}</div>
               <div class="pt-2 border-t border-[#1E2430] flex flex-wrap gap-1.5">
                 ${techTags}
@@ -574,8 +859,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <!-- Footer Modal: Links -->
-        <div class="bg-[#0B0E14] px-6 py-3.5 border-t border-[#1E2430] flex items-center justify-between text-xs font-mono">
-          <div class="flex items-center gap-4">
+        <div class="bg-[#0B0E14] px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#1E2430] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+          <div class="flex flex-wrap items-center gap-3">
             ${proj.githubUrl ? `
               <a href="${proj.githubUrl}" target="_blank" class="text-slate-300 hover:text-white flex items-center gap-1.5 transition">
                 <i data-lucide="github" class="w-4 h-4 text-sky-400"></i>
@@ -590,7 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </a>
             ` : ''}
           </div>
-          <button onclick="closeProjectDetail()" class="px-3.5 py-1.5 rounded-lg bg-[#181D26] hover:bg-[#222936] text-slate-300 hover:text-white transition">
+          <button onclick="closeProjectDetail()" class="px-3.5 py-1.5 rounded-lg bg-[#181D26] hover:bg-[#222936] text-slate-300 hover:text-white transition ml-auto">
             Đóng
           </button>
         </div>
@@ -683,6 +968,15 @@ document.addEventListener('DOMContentLoaded', () => {
     closeProjectModalBtn.addEventListener('click', window.closeProjectModal);
   }
 
+  // Đóng khi click ra ngoài backdrop trên thiết bị cảm ứng
+  if (projectModal) {
+    projectModal.addEventListener('click', (e) => {
+      if (e.target === projectModal) {
+        window.closeProjectModal();
+      }
+    });
+  }
+
   window.editProject = function(id) {
     const proj = projectsData.find(p => p.id === id);
     if (!proj) return;
@@ -706,15 +1000,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (projectModal) projectModal.classList.remove('hidden');
   };
 
-  window.deleteProject = function(id) {
+  window.deleteProject = async function(id) {
     if (!confirm("Bạn có chắc chắn muốn xóa dự án này?")) return;
+    
+    // 1. Xóa qua Supabase SDK (GitHub Pages)
+    if (supabaseClient) {
+      try {
+        const { error } = await supabaseClient.from('projects').delete().eq('id', id);
+        if (error) console.warn("Lỗi xóa trên Supabase SDK:", error);
+      } catch (e) {
+        console.warn("Lỗi gọi Supabase SDK:", e);
+      }
+    } else {
+      // 2. Xóa qua Backend API (localhost)
+      fetch(`/api/projects/${id}`, { method: 'DELETE' }).catch(e => console.log("Xóa offline:", e));
+    }
+
     projectsData = projectsData.filter(p => p.id !== id);
     saveProjectsToStorage();
     renderProjects();
   };
 
   if (projectForm) {
-    projectForm.addEventListener('submit', (e) => {
+    projectForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('projectId').value;
       const title = document.getElementById('projTitle').value.trim();
@@ -739,43 +1047,69 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const techStack = techStackStr ? techStackStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const targetId = id || ("proj-" + Date.now());
 
-      if (id) {
-        const idx = projectsData.findIndex(p => p.id === id);
-        if (idx !== -1) {
-          projectsData[idx] = {
-            ...projectsData[idx],
+      const updatedItem = {
+        id: targetId,
+        title,
+        category,
+        badge,
+        tag,
+        icon: category === 'ai' ? 'brain' : (category === 'software' ? 'smartphone' : 'cpu'),
+        shortDesc: problem,
+        problem,
+        role,
+        techDetails: "Được xây dựng bằng " + techStack.join(', ') + ".",
+        techStack,
+        githubUrl,
+        demoUrl,
+        isPinned
+      };
+
+      // 1. Đồng bộ lên Supabase SDK trực tiếp (GitHub Pages)
+      if (supabaseClient) {
+        try {
+          const dbRow = {
+            id: targetId,
             title,
             category,
             badge,
             tag,
-            shortDesc: problem,
+            icon: updatedItem.icon,
+            is_pinned: isPinned,
+            short_desc: problem,
             problem,
             role,
-            techStack,
-            githubUrl,
-            demoUrl,
-            isPinned
+            tech_details: updatedItem.techDetails,
+            tech_stack: techStack,
+            github_url: githubUrl,
+            demo_url: demoUrl
           };
+          const { error } = await supabaseClient.from('projects').upsert(dbRow);
+          if (error) {
+            console.warn("Lỗi lưu Supabase SDK:", error);
+          } else {
+            console.log("✓ Đã đồng bộ dự án lên Supabase thành công!");
+          }
+        } catch (err) {
+          console.warn("Lỗi gọi Supabase SDK:", err);
         }
       } else {
-        const newProj = {
-          id: "proj-" + Date.now(),
-          title,
-          category,
-          badge,
-          tag,
-          icon: category === 'ai' ? 'brain' : (category === 'software' ? 'smartphone' : 'cpu'),
-          shortDesc: problem,
-          problem,
-          role,
-          techDetails: "Được xây dựng bằng " + techStack.join(', ') + ".",
-          techStack,
-          githubUrl,
-          demoUrl,
-          isPinned
-        };
-        projectsData.unshift(newProj);
+        // 2. Đồng bộ qua Backend API (localhost)
+        fetch(id ? `/api/projects/${id}` : '/api/projects', {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedItem)
+        }).catch(err => console.log("Lưu offline:", err));
+      }
+
+      if (id) {
+        const idx = projectsData.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          projectsData[idx] = updatedItem;
+        }
+      } else {
+        projectsData.unshift(updatedItem);
       }
 
       saveProjectsToStorage();
@@ -803,13 +1137,35 @@ document.addEventListener('DOMContentLoaded', () => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (evt) => {
+      reader.onload = async (evt) => {
         try {
           const imported = JSON.parse(evt.target.result);
           if (Array.isArray(imported)) {
             projectsData = imported;
             saveProjectsToStorage();
             renderProjects();
+
+            // Nếu có Supabase SDK thì đồng bộ hàng loạt lên luôn
+            if (supabaseClient) {
+              const rows = imported.map(p => ({
+                id: p.id,
+                title: p.title,
+                category: p.category,
+                badge: p.badge,
+                tag: p.tag,
+                icon: p.icon || 'folder-code',
+                is_pinned: !!p.isPinned,
+                short_desc: p.shortDesc,
+                problem: p.problem,
+                role: p.role,
+                tech_details: p.techDetails,
+                tech_stack: p.techStack,
+                github_url: p.githubUrl,
+                demo_url: p.demoUrl
+              }));
+              await supabaseClient.from('projects').upsert(rows);
+            }
+
             alert("Đã nhập thành công " + imported.length + " dự án!");
           } else {
             alert("Định dạng file JSON không hợp lệ!");
@@ -823,12 +1179,40 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   };
 
-  window.resetDefaultProjects = function() {
-    if (confirm("Khôi phục danh sách dự án về mặc định của HCMUS?")) {
-      projectsData = [...DEFAULT_PROJECTS];
-      saveProjectsToStorage();
-      renderProjects();
+  window.resetDefaultProjects = async function() {
+    if (!confirm("Khôi phục danh sách dự án về mặc định của HCMUS?")) return;
+
+    if (supabaseClient) {
+      try {
+        await supabaseClient.from('projects').delete().neq('id', '___dummy___');
+        const rows = DEFAULT_PROJECTS.map(p => ({
+          id: p.id,
+          title: p.title,
+          category: p.category,
+          badge: p.badge,
+          tag: p.tag,
+          icon: p.icon || 'folder-code',
+          is_pinned: !!p.isPinned,
+          short_desc: p.shortDesc,
+          problem: p.problem,
+          role: p.role,
+          tech_details: p.techDetails,
+          tech_stack: p.techStack,
+          github_url: p.githubUrl,
+          demo_url: p.demoUrl
+        }));
+        await supabaseClient.from('projects').insert(rows);
+      } catch (e) {
+        console.warn("Lỗi reset trên Supabase SDK:", e);
+      }
+    } else {
+      fetch('/api/projects/reset', { method: 'POST' }).catch(e => console.log("Reset offline"));
     }
+
+    projectsData = [...DEFAULT_PROJECTS];
+    saveProjectsToStorage();
+    renderProjects();
+    alert("✓ Đã khôi phục danh sách dự án mặc định thành công!");
   };
 
   // 9. TYPING EFFECT

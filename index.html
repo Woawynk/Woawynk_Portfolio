@@ -2,7 +2,17 @@
 <html lang="vi" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- viewport: ngăn iOS scale, hỗ trợ safe-area cho notch và home indicator -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- PWA / Mobile Web App Meta -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ThaiHoa.dev">
+  <meta name="theme-color" content="#07090E">
+  <!-- SEO -->
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Huỳnh Thái Hoà">
   <title>Huỳnh Thái Hoà | Aspiring AI Engineer · HCMUS Portfolio</title>
   <meta name="description" content="Portfolio chuyên môn của Huỳnh Thái Hoà - Sinh viên Công nghệ Tri thức, ĐH Khoa học Tự nhiên (HCMUS). Tập trung showcase đồ án AI, Thuật toán và Kỹ thuật phần mềm.">
   
@@ -10,11 +20,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS SDK CDN (Hỗ trợ chạy trực tiếp trên GitHub Pages không cần Backend) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <!-- Google Fonts: JetBrains Mono & Plus Jakarta Sans -->
+  <!-- Google Fonts: JetBrains Mono & Plus Jakarta Sans - preload để tránh FOUT -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Preload font ưu tiên để không bị layout shift -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
   
   <!-- File CSS riêng -->
   <link rel="stylesheet" href="style.css">
@@ -34,67 +48,77 @@
   </script>
 </head>
 
-<body class="bg-[#07090E] text-[#E2E8F0] font-sans antialiased selection:bg-slate-700 selection:text-white transition-colors duration-300 min-h-screen flex flex-col justify-between">
+<body class="bg-[#07090E] text-[#E2E8F0] font-sans antialiased selection:bg-slate-700 selection:text-white transition-colors duration-300 min-h-screen flex flex-col justify-between overflow-x-hidden">
 
-  <!-- BACKGROUND DECORATIONS -->
+  <!-- BACKGROUND DECORATIONS: ẩn trên mobile để tăng tốc -->
   <div class="fixed inset-0 tech-grid pointer-events-none z-0"></div>
-  <div class="fixed top-0 left-1/4 w-[500px] h-[500px] bg-slate-800/20 rounded-full blur-[140px] pointer-events-none z-0"></div>
-  <div class="fixed top-1/2 right-10 w-[450px] h-[450px] bg-blue-950/15 rounded-full blur-[150px] pointer-events-none z-0"></div>
+  <div class="fixed top-0 left-1/4 w-72 h-72 sm:w-[500px] sm:h-[500px] bg-slate-800/20 rounded-full blur-[80px] sm:blur-[140px] pointer-events-none z-0 hidden sm:block"></div>
+  <div class="fixed top-1/2 right-4 sm:right-10 w-60 h-60 sm:w-[450px] sm:h-[450px] bg-blue-950/15 rounded-full blur-[80px] sm:blur-[150px] pointer-events-none z-0 hidden sm:block"></div>
 
   <!-- NAVIGATION BAR (Menu tinh giản 3 mục chính: Tổng quan & Hồ sơ, Đồ án, Liên hệ) -->
-  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-[#1E2430] bg-[#07090E]/90 backdrop-blur-md" id="navbar">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-[#1E2430] bg-[#07090E]/92 backdrop-blur-md" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
       <!-- Logo / Brand -->
-      <a href="#hero" class="nav-page-btn flex items-center space-x-2 font-mono font-bold text-base text-white group" data-target="hero">
+      <a href="#hero" class="nav-page-btn flex items-center space-x-1.5 font-mono font-bold text-sm sm:text-base text-white group shrink-0" data-target="hero">
         <span class="text-slate-400 group-hover:text-sky-400 transition">&lt;</span>
         <span class="tracking-wider text-slate-100 group-hover:text-white transition-colors">ThaiHoa.dev</span>
         <span class="text-slate-500 group-hover:text-emerald-400 transition">/&gt;</span>
       </a>
 
-      <!-- Desktop Nav Menu: Đã gộp gọn, loại bỏ các số 00, 01, 02... -->
-      <nav class="hidden md:flex items-center space-x-2 text-xs font-mono font-medium">
-        <button data-target="hero" class="nav-page-btn px-3.5 py-1.5 rounded-lg border border-transparent transition-all">
+      <!-- Desktop Nav Menu -->
+      <nav class="hidden md:flex items-center space-x-1 text-xs font-mono font-medium">
+        <button data-target="hero" class="nav-page-btn px-3 py-1.5 rounded-lg border border-transparent transition-all whitespace-nowrap">
           Tổng quan & Hồ sơ
         </button>
-        <button data-target="projects" class="nav-page-btn px-3.5 py-1.5 rounded-lg border border-transparent transition-all">
-          Dự án & Đồ án HCMUS
+        <button data-target="projects" class="nav-page-btn px-3 py-1.5 rounded-lg border border-transparent transition-all whitespace-nowrap">
+          Dự án & Đồ án
         </button>
-        <button data-target="contact" class="nav-page-btn px-3.5 py-1.5 rounded-lg border border-transparent transition-all">
+        <button data-target="contact" class="nav-page-btn px-3 py-1.5 rounded-lg border border-transparent transition-all whitespace-nowrap">
           Liên hệ
         </button>
       </nav>
 
       <!-- Action Buttons -->
-      <div class="flex items-center space-x-3">
-        <!-- Badge đổi chế độ (HR View vs Creator Mode) -->
-        <button id="modeBadge" title="Nhấn để đổi chế độ (Mã PIN: 1234)" class="px-2.5 py-1 rounded text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700 cursor-pointer flex items-center gap-1.5 transition">
+      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <!-- Badge đổi chế độ -->
+        <button id="modeBadge" title="Nhấn để đổi chế độ (Mã PIN: 1234)" class="px-2 py-1 sm:px-2.5 sm:py-1 rounded text-[10px] sm:text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700 cursor-pointer flex items-center gap-1 sm:gap-1.5 transition whitespace-nowrap">
           HR View
         </button>
 
         <!-- Terminal CLI button -->
-        <button id="terminalToggleBtn" title="Mở Terminal tương tác" class="px-3 py-1.5 rounded-lg border border-[#232936] bg-[#0F1219] hover:bg-[#181D26] hover:border-[#3A4458] text-slate-300 hover:text-white transition-all flex items-center gap-2 text-xs font-mono">
-          <i data-lucide="terminal" class="w-3.5 h-3.5 text-slate-400"></i>
+        <button id="terminalToggleBtn" title="Mở Terminal tương tác" class="px-2 py-1.5 sm:px-3 rounded-lg border border-[#232936] bg-[#0F1219] hover:bg-[#181D26] hover:border-[#3A4458] text-slate-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-mono">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
           <span class="hidden sm:inline">CLI</span>
         </button>
 
-        <!-- Nút Liên hệ nhanh -->
-        <button data-target="contact" class="nav-page-btn px-4 py-2 text-xs font-mono font-semibold rounded-lg bg-[#1E2430] hover:bg-[#2A3344] border border-[#2B3545] text-slate-100 hover:text-white transition-all flex items-center space-x-1.5 shadow-sm">
-          <i data-lucide="send" class="w-3.5 h-3.5 text-sky-400"></i>
-          <span>Kết nối</span>
+        <!-- Nút Liên hệ nhanh: ẩn trên màn nhỏ nhất -->
+        <button data-target="contact" class="nav-page-btn hidden xs:flex px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-mono font-semibold rounded-lg bg-[#1E2430] hover:bg-[#2A3344] border border-[#2B3545] text-slate-100 hover:text-white transition-all items-center space-x-1.5">
+          <i data-lucide="send" class="w-3.5 h-3.5 text-sky-400 shrink-0"></i>
+          <span class="hidden sm:inline">Kết nối</span>
+          <span class="sm:hidden">Liên hệ</span>
         </button>
 
         <!-- Mobile menu toggle -->
-        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg border border-[#232936] bg-[#0F1219] text-slate-400 hover:text-white">
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg border border-[#232936] bg-[#0F1219] text-slate-400 hover:text-white active:bg-[#181D26] transition">
           <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
       </div>
     </div>
 
-    <!-- Mobile Navigation Dropdown -->
-    <div id="mobileMenu" class="hidden md:hidden border-t border-[#1E2430] bg-[#07090E]/98 px-4 pt-3 pb-6 space-y-2 font-mono text-xs">
-      <button data-target="hero" class="nav-page-btn w-full text-left py-2.5 px-3 rounded-lg block">Tổng quan & Hồ sơ</button>
-      <button data-target="projects" class="nav-page-btn w-full text-left py-2.5 px-3 rounded-lg block">Dự án & Đồ án HCMUS</button>
-      <button data-target="contact" class="nav-page-btn w-full text-left py-2.5 px-3 rounded-lg block">Liên hệ</button>
+    <!-- Mobile Navigation Dropdown: full width, dễ bấm trên ngón tay -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-[#1E2430] bg-[#07090E]/98 backdrop-blur-md px-4 pt-2 pb-4 space-y-1 font-mono text-xs">
+      <button data-target="hero" class="nav-page-btn w-full text-left py-3 px-3 rounded-xl flex items-center gap-2">
+        <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+        Tổng quan & Hồ sơ
+      </button>
+      <button data-target="projects" class="nav-page-btn w-full text-left py-3 px-3 rounded-xl flex items-center gap-2">
+        <i data-lucide="folder-code" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+        Dự án & Đồ án HCMUS
+      </button>
+      <button data-target="contact" class="nav-page-btn w-full text-left py-3 px-3 rounded-xl flex items-center gap-2">
+        <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+        Liên hệ
+      </button>
     </div>
   </header>
 
@@ -338,9 +362,13 @@
       
       <!-- Thanh công cụ Creator / Admin (chỉ hiện khi ở Admin Mode) -->
       <div id="adminControlsBar" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-2 text-xs font-mono text-amber-300">
+        <div class="flex items-center gap-2.5 text-xs font-mono text-amber-300">
           <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i>
-          <span><strong>CREATOR DASHBOARD:</strong> Chế độ quản trị dự án (Lưu cục bộ tại trình duyệt).</span>
+          <span><strong>CREATOR DASHBOARD:</strong> Quản trị dự án & Đồng bộ Supabase</span>
+          <span id="dbSyncBadge" class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Supabase Cloud</span>
+          </span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="openAddProjectModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs flex items-center gap-1.5 transition">
@@ -359,41 +387,73 @@
             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
             <span>Khôi phục gốc</span>
           </button>
-          <button onclick="changeAdminPIN()" class="px-3 py-1.5 rounded-lg bg-[#181D26] hover:bg-[#222936] text-amber-300 hover:text-amber-200 border border-amber-500/30 font-mono text-xs flex items-center gap-1.5 transition" title="Đổi mã PIN bảo mật cho Creator Mode">
+          <button onclick="changeAdminPIN()" class="px-3 py-1.5 rounded-lg bg-[#181D26] hover:bg-[#222936] text-amber-300 hover:text-amber-200 border border-amber-500/30 font-mono text-xs flex items-center gap-1.5 transition" title="Đổi mã PIN bảo mật cho Creator Mode (Lưu mã băm trên Supabase)">
             <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
             <span>Đổi mã PIN</span>
           </button>
         </div>
       </div>
 
-      <!-- Header trang dự án (Bỏ tiền tố số 03) -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h2 class="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase mb-1">// Sản phẩm & Bằng chứng kỹ thuật</h2>
-          <h3 class="text-2xl sm:text-3xl font-extrabold text-white">Đồ Án & Dự Án Đã Thực Hiện Tại HCMUS</h3>
-          <p class="mt-1.5 text-xs sm:text-sm text-slate-400">Các bài toán thực tế giải quyết trong suốt quá trình học tập được minh chứng bằng giải thuật, vai trò và mã nguồn.</p>
+      <!-- ================= KHUNG RIÊNG: TOP 3 DỰ ÁN NỔI BẬT NHẤT (PINNED SHOWCASE) ================= -->
+      <div id="pinnedShowcaseWrapper" class="space-y-4 p-5 sm:p-6 rounded-2xl bg-gradient-to-b from-[#10141D] to-[#0A0D14] border border-amber-500/30 shadow-2xl relative overflow-hidden">
+        <div class="absolute -top-16 -right-16 w-56 h-56 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-16 -left-16 w-56 h-56 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10 border-b border-[#1E2430] pb-4">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 shrink-0">
+              <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-lg sm:text-xl font-extrabold text-white">Dự Án Nổi Bật & Tâm Đắc Nhất</h3>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">★ Top 3 Featured</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">3 đồ án cốt lõi thể hiện rõ nét tư duy giải thuật AI & khả năng lập trình chuyên sâu của Huỳnh Thái Hoà.</p>
+            </div>
+          </div>
+          <div id="pinnedCounterBadge" class="text-xs font-mono text-amber-300 bg-amber-950/40 px-3 py-1.5 rounded-xl border border-amber-500/30 self-start sm:self-auto shrink-0 flex items-center gap-1.5">
+            <i data-lucide="pin" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Đã ghim: <strong id="pinnedCountText" class="text-amber-200">3/3</strong></span>
+          </div>
         </div>
-        
-        <!-- Bộ lọc dự án tinh gọn -->
-        <div class="flex flex-wrap items-center gap-1.5 bg-[#0A0D13] p-1.5 rounded-xl border border-[#232936] text-xs font-mono">
-          <button data-filter="all" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#1E2430] text-white border border-[#2B3545] transition">
-            Tất cả
-          </button>
-          <button data-filter="ai" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition">
-            AI & Toán ứng dụng
-          </button>
-          <button data-filter="software" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition">
-            App & Phần mềm
-          </button>
-          <button data-filter="system" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition">
-            Mạng & Phần cứng
-          </button>
+
+        <!-- Grid 3 Card Pinned Động -->
+        <div id="pinnedShowcaseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 relative z-10 pt-1">
+          <!-- Render động từ script.js -->
         </div>
       </div>
 
-      <!-- Grid danh sách dự án động (Render bởi script.js) -->
-      <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Render động từ script.js -->
+      <!-- ================= DANH MỤC TOÀN BỘ DỰ ÁN & ĐỒ ÁN HCMUS ================= -->
+      <div class="space-y-6 pt-4">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <h2 class="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase mb-1">// Danh mục đầy đủ</h2>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-white">Toàn Bộ Dự Án & Đồ Án HCMUS</h3>
+            <p class="mt-1.5 text-xs sm:text-sm text-slate-400">Các bài toán thực tế giải quyết trong suốt quá trình học tập được minh chứng bằng giải thuật, vai trò và mã nguồn.</p>
+          </div>
+          
+          <!-- Bộ lọc dự án tinh gọn (hỗ trợ vuốt ngang mượt mà trên Mobile & Tablet) -->
+          <div class="flex items-center gap-1.5 bg-[#0A0D13] p-1.5 rounded-xl border border-[#232936] text-xs font-mono overflow-x-auto max-w-full sm:flex-wrap shrink-0">
+            <button data-filter="all" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#1E2430] text-white border border-[#2B3545] transition shrink-0 whitespace-nowrap">
+              Tất cả
+            </button>
+            <button data-filter="ai" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition shrink-0 whitespace-nowrap">
+              AI & Toán ứng dụng
+            </button>
+            <button data-filter="software" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition shrink-0 whitespace-nowrap">
+              App & Phần mềm
+            </button>
+            <button data-filter="system" class="proj-filter-btn px-3 py-1.5 rounded-lg bg-[#0F1219] text-slate-400 border border-transparent hover:text-white transition shrink-0 whitespace-nowrap">
+              Mạng & Phần cứng
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid danh sách toàn bộ dự án động (Render bởi script.js) -->
+        <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Render động từ script.js -->
+        </div>
       </div>
     </section>
 
@@ -502,19 +562,19 @@
   </footer>
 
   <!-- MODAL: THÊM / SỬA DỰ ÁN (CHỈ DÙNG CHO CHỦ PORTFOLIO TRONG ADMIN MODE) -->
-  <div id="projectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden">
-    <div class="w-full max-w-xl dark-card rounded-2xl overflow-hidden border border-[#2B3545] shadow-2xl flex flex-col max-h-[90vh]">
-      <div class="bg-[#0B0E14] px-6 py-4 border-b border-[#1E2430] flex items-center justify-between">
-        <h3 id="modalTitle" class="text-base font-bold text-white font-mono flex items-center gap-2">
+  <div id="projectModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md hidden">
+    <div class="w-full max-w-xl dark-card rounded-2xl overflow-hidden border border-[#2B3545] shadow-2xl flex flex-col max-h-[92dvh] sm:max-h-[90vh]">
+      <div class="bg-[#0B0E14] px-4 py-3 sm:px-6 sm:py-4 border-b border-[#1E2430] flex items-center justify-between">
+        <h3 id="modalTitle" class="text-sm sm:text-base font-bold text-white font-mono flex items-center gap-2">
           <i data-lucide="edit-3" class="w-4 h-4 text-sky-400"></i>
           <span>Thêm Dự Án Mới</span>
         </h3>
-        <button id="closeProjectModalBtn" class="text-slate-400 hover:text-white transition">
+        <button id="closeProjectModalBtn" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center justify-center min-w-[36px] min-h-[36px]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form id="projectForm" class="p-6 overflow-y-auto space-y-4 text-xs font-mono">
+      <form id="projectForm" class="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs font-mono">
         <input type="hidden" id="projectId" value="">
 
         <div>

@@ -1,0 +1,19 @@
+{
+  "name": "thaihoa-portfolio",
+  "version": "1.0.0",
+  "description": "Portfolio cá nhân của Huỳnh Thái Hoà - Sinh viên ngành Công nghệ Tri thức HCMUS (AI Engineer)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["portfolio", "ai-engineer", "hcmus", "supabase", "postgres"],
+  "author": "Huỳnh Thái Hoà",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}
